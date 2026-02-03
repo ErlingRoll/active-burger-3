@@ -23,9 +23,8 @@ export const PlayerContext = createContext<PlayerContextType>({
 })
 
 export const PlayerProvider = ({ children }: { children: any }) => {
-    const { account } = useContext(UserContext)
-    const { character, setCharacter } = useContext(CharacterContext)
-    const { gameCon, gamestate, terrain, reconnect, realm } = useContext(GamestateContext)
+    const { character } = useContext(CharacterContext)
+    const { user, gameCon, gamestate, terrain, reconnect, realm } = useContext(GamestateContext)
     const { shopOpen, setShopOpen, craftingBenchOpen, setCraftingBenchOpen } = useContext(UIContext)
     const { settings } = useContext(SettingsContext)
 
@@ -92,107 +91,14 @@ export const PlayerProvider = ({ children }: { children: any }) => {
         return solid
     }
 
-    function interact() {
-        if (!selectedCell) return
-        let object = gamestate.position_objects[selectedCell.x + "_" + selectedCell.y]?.[0]
-        if (!object) return
-        localInteract(object)
-        gameActions.current.interact({ object_id: object.id })
-    }
-
-    function move({ direction }: { direction: "up" | "down" | "left" | "right" }) {
-        if (!character || character.current_hp <= 0) return
-        character.direction = direction
-
-        switch (direction) {
-            case "up":
-                if (checkSolidTile({ x: character.x, y: character.y + 1, realm: character.realm })) break
-                gameActions.current.move({ x: character.x, y: character.y + 1, direction: "up" })
-                character.y += 1
-                break
-            case "down":
-                if (checkSolidTile({ x: character.x, y: character.y - 1, realm: character.realm })) break
-                gameActions.current.move({ x: character.x, y: character.y - 1, direction: "down" })
-                character.y -= 1
-                break
-            case "left":
-                if (checkSolidTile({ x: character.x - 1, y: character.y, realm: character.realm })) break
-                gameActions.current.move({ x: character.x - 1, y: character.y, direction: "left" })
-                character.x -= 1
-                break
-            case "right":
-                if (checkSolidTile({ x: character.x + 1, y: character.y, realm: character.realm })) break
-                gameActions.current.move({ x: character.x + 1, y: character.y, direction: "right" })
-                character.x += 1
-                break
-        }
-
-        setCharacter({ ...character })
-    }
-
     useEffect(() => {
         getSelectedCell()
     }, [character])
 
     useEffect(() => {
-        gameActions.current.account = account
-        gameActions.current.character = character
+        gameActions.current.user = user
         gameActions.current.gameCon = gameCon
-    }, [account, character, gameCon])
-
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (!character || character.current_hp <= 0) return
-            if (document.activeElement.tagName === "INPUT") return
-            if (shopOpen || craftingBenchOpen) {
-                setShopOpen(false)
-                setCraftingBenchOpen(false)
-            }
-            if (!gamestate) return
-            const urlPaths = window.location.pathname.split("/")
-            const mainPath = urlPaths[1].toLocaleLowerCase()
-            if (mainPath === "edit") return
-            if (event.repeat) {
-                if (Date.now() - lastMoveRepeat < moveRepeatDelay) return
-            }
-            setLastMoveRepeat(Date.now())
-
-            const input = event.key.toLowerCase()
-            let gameInput = true
-            switch (input) {
-                case "arrowup":
-                case "w":
-                    move({ direction: "up" })
-                    break
-                case "arrowdown":
-                case "s":
-                    move({ direction: "down" })
-                    break
-                case "arrowleft":
-                case "a":
-                    move({ direction: "left" })
-                    break
-                case "arrowright":
-                case "d":
-                    move({ direction: "right" })
-                    break
-                case "e":
-                    interact()
-                    break
-                case settings.actionButton:
-                    interact()
-                    break
-                default:
-                    gameInput = false
-            }
-            if (gameInput) {
-                event.preventDefault()
-                return
-            }
-        }
-        window.addEventListener("keydown", handleKeyDown)
-        return () => window.removeEventListener("keydown", handleKeyDown)
-    }, [gamestate, character, gameActions, selectedCell, lastMoveRepeat, shopOpen, craftingBenchOpen, settings])
+    }, [user, character, gameCon])
 
     return (
         <PlayerContext.Provider

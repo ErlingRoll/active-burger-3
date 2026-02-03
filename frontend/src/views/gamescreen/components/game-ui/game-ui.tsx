@@ -28,20 +28,20 @@ const GameUI = ({ selectedCell }: { selectedCell: { x: number; y: number } | nul
                 className={"cursor-pointer pointer-events-auto"}
                 toastClassName={"bg-dark! border-2 border-primary"}
             />
-            <div className="absolute bottom-0 left-0 m-4 gap-4 flex items-end">
+            {/* <div className="absolute bottom-0 left-0 m-4 gap-4 flex items-end">
                 <Inventory />
                 <Equipment />
-            </div>
-            <div className="absolute flex items-start top-0 left-0">
+            </div> */}
+            {/* <div className="absolute flex items-start top-0 left-0">
                 <CharacterInfo />
                 <CellInfo pos={selectedCell} />
-            </div>
+            </div> */}
             <div className="absolute flex flex-col items-end p-4 bottom-0 right-0 gap-4 pointer-events-none">
                 <SettingsMenu />
                 <Log />
             </div>
-            {shopOpen && <Shop />}
-            {craftingBenchOpen && <CraftingBench />}
+            {/* {shopOpen && <Shop />}
+            {craftingBenchOpen && <CraftingBench />} */}
         </div>
     )
 }

@@ -6,7 +6,7 @@ import { exchangeCodeForToken, fetchDiscordUser, initiateDiscordLogin } from "..
 import loginLogo from "../../assets/images/login_logo.png"
 import loginBackground from "../../assets/images/background.png"
 import { UserContext } from "../../contexts/user-context"
-import { GamestateContext, gameWebsocketUrl } from "../../contexts/gamestate-context"
+import { GamestateContext } from "../../contexts/gamestate-context"
 import { ThreeDot } from "react-loading-indicators"
 
 const Login = () => {
@@ -14,7 +14,7 @@ const Login = () => {
 
     const { code } = Object.fromEntries(new URLSearchParams(window.location.search))
 
-    const { user, setUser } = useContext(UserContext)
+    const { externalUser: user, setExternalUser: setUser } = useContext(UserContext)
     const { gameCon, setGameCon, gamestate: game, setGamestate: setGame } = useContext(GamestateContext)
 
     function login() {
@@ -67,7 +67,7 @@ const Login = () => {
         <div id="login" className="relative">
             <img src={loginBackground} alt="background" className="absolute w-screen h-screen object-cover -z-10" />
             <div className="flex flex-col justify-center items-center h-screen gap-12 pb-24">
-                <img src={loginLogo} alt="title" className="main-logo w-[24rem]" />
+                {/* <img src={loginLogo} alt="title" className="main-logo w-[24rem]" /> */}
                 <div className="bg-white/70 px-24 py-8 flex flex-col items-center justify-center rounded-lg">
                     {loading || code || user ? (
                         <div className="relative flex flex-col justify-center items-center">

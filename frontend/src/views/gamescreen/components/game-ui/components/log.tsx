@@ -6,7 +6,7 @@ import { PlayerContext } from "../../../../../contexts/player-context"
 const tabs = ["Chat", "Game"]
 
 const Log = () => {
-    const [tab, setTab] = useState<number>(0)
+    const [tab, setTab] = useState<number>(1)
     const [message, setMessage] = useState<string>("")
 
     const { log, chatMessages } = useContext(GamestateContext)
@@ -41,7 +41,7 @@ const Log = () => {
             </div>
             {tabName === "Chat" && (
                 <div>
-                    <div className="flex flex-col-reverse gap-1 min-h-38 max-h-64 min-w-64 w-[30vw] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 p-2 pb-0">
+                    <div className="flex flex-col-reverse gap-1 min-h-38 max-h-64 min-w-32 w-[20vw] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 p-2 pb-0">
                         {chatMessages.map((msg, index) => (
                             <div key={index} className="bg-light/20 rounded-xs py-[1px] px-[0.3rem]">
                                 <p
@@ -68,7 +68,7 @@ const Log = () => {
                 </div>
             )}
             {tabName === "Game" && (
-                <div className="flex flex-col-reverse gap-1 min-h-38 max-h-64 min-w-64 w-[30vw] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 p-2">
+                <div className="flex flex-col-reverse gap-1 min-h-38 max-h-64 min-w-32 w-[20vw] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 p-2">
                     {log.map((msg, index) => (
                         <div key={index} className="bg-light/20 rounded-xs py-[1px] px-[0.3rem]">
                             {msg}

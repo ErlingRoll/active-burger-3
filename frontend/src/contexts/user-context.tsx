@@ -1,31 +1,20 @@
-import React, { Dispatch, SetStateAction, createContext, use, useEffect } from "react"
-import { Account } from "../models/account"
+import React, { Dispatch, SetStateAction, createContext } from "react"
+import { User as UserType } from "../models/account"
 
-export type User = Account & any
+export type User = UserType & any
 
 type UserContextType = {
-    user: User | null
-    setUser: Dispatch<SetStateAction<User | null>>
-    account: Account | null
-    setAccount: Dispatch<SetStateAction<Account | null>>
-    admin: boolean
+    externalUser: User | null
+    setExternalUser: Dispatch<SetStateAction<User | null>>
 }
 
 export const UserContext = createContext<UserContextType>({
-    user: null,
-    setUser: (user: any) => {},
-    account: null,
-    setAccount: (account: any) => {},
-    admin: false,
+    externalUser: null,
+    setExternalUser: (user: any) => {},
 })
 
 export const UserProvider = ({ children }: { children: any }) => {
-    const [user, setUser] = React.useState<User | null>(null)
-    const [account, setAccount] = React.useState<Account | null>(null)
+    const [externalUser, setExternalUser] = React.useState<User | null>(null)
 
-    return (
-        <UserContext.Provider value={{ user, setUser, account, setAccount, admin: account?.admin }}>
-            {children}
-        </UserContext.Provider>
-    )
+    return <UserContext.Provider value={{ externalUser, setExternalUser }}>{children}</UserContext.Provider>
 }

@@ -6,6 +6,7 @@ import { Terrain } from "../models/terrain"
 import { toast } from "react-toastify"
 import { Item } from "../models/item"
 import { Realm, realmBackground, RealmSettings } from "../game/world"
+import { Run, User } from "../game/objects"
 
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
@@ -41,6 +42,10 @@ type GamestateContextType = {
     realm?: Realm
     setRealm?: Dispatch<SetStateAction<Realm | null>>
     realmSettings?: RealmSettings
+    user: User | null
+    setUser: Dispatch<SetStateAction<User | null>>
+    run: Run | null
+    setRun: Dispatch<SetStateAction<Run | null>>
 }
 
 export const GamestateContext = createContext<GamestateContextType>({
@@ -59,6 +64,10 @@ export const GamestateContext = createContext<GamestateContextType>({
     realmSettings: {
         background: "terrain/grass/grass",
     },
+    user: null,
+    setUser: (user: any) => {},
+    run: null,
+    setRun: (run: any) => {},
 })
 
 export const GameProvider = ({ children }: { children: any }) => {
@@ -76,8 +85,10 @@ export const GameProvider = ({ children }: { children: any }) => {
     const [connecting, setConnecting] = useState<boolean>(false)
     const [connectTimeout, setConnectTimeout] = useState(null)
 
-    const { user, setUser, setAccount } = useContext(UserContext)
+    const { externalUser, setExternalUser } = useContext(UserContext)
     const { character, setCharacter } = useContext(CharacterContext)
+    const [user, setUser] = React.useState<User | null>(null)
+    const [run, setRun] = React.useState<Run | null>(null)
 
     useEffect(() => {
         if (!realm) return
@@ -100,8 +111,8 @@ export const GameProvider = ({ children }: { children: any }) => {
         }
         setGamestate(null)
         setCharacter(null)
-        setAccount(null)
         setUser(null)
+        setExternalUser(null)
     }
 
     function notifyLoot(payload: any) {
@@ -135,38 +146,16 @@ export const GameProvider = ({ children }: { children: any }) => {
             case "login_success":
                 on_login_success(payload)
                 break
-            case "gamestate_update":
-                setGamestate(payload)
+            case "log_user_error":
+                toast.error(payload.message)
                 break
-            case "terrain_update":
-                setTerrain(payload)
+            case "run_updated":
+                setRun(payload.run)
                 break
-            case "character_update":
-                if (character) return setCharacter({ ...payload, direction: character.direction })
-                setCharacter(payload)
-                break
-            case "item_update":
-                if (!character) return
-                setCharacter({ ...character, items: payload.items })
-                break
-            case "realm_update":
-                setRealm(payload.realm)
+            case "run_ended":
+                setRun(null)
                 break
             case "log":
-                const error = payload.error
-                if (error) {
-                    toast.error(error)
-                }
-                break
-            case "chat_update":
-                setChatMessages(payload.messages)
-                break
-            case "loot_drop":
-                notifyLoot(payload)
-                break
-            case "damage_hit":
-                let _damageHits = damageHits.slice(0, 100)
-                setDamageHits([payload, ..._damageHits])
                 break
             default:
                 console.error("Unhandled WebSocket event:", event, payload, log)
@@ -174,12 +163,10 @@ export const GameProvider = ({ children }: { children: any }) => {
     }
 
     function on_login_success(data: any) {
-        const account = data.account
-        const character = data.character
-        setAccount(account)
-        setCharacter(character)
-        const loginMessage = `Logged in as ${account.name} (${character ? character.name : "no character"})`
-        setLog((prevLog) => [loginMessage, ...prevLog])
+        const user = data.user
+        const run = data.run
+        setRun(run)
+        setUser(user)
     }
 
     useEffect(() => {
@@ -203,6 +190,19 @@ export const GameProvider = ({ children }: { children: any }) => {
             on_event(messageEvent, parsedData.payload, parsedData.log)
         }
     }, [character, gameCon])
+
+    function tryLogin() {
+        const loginInfo = {
+            action: "login",
+            payload: {
+                discord_id: externalUser?.id,
+                discord_avatar: externalUser?.avatar,
+                name: externalUser?.global_name,
+            },
+        }
+
+        gameCon.send(JSON.stringify(loginInfo))
+    }
 
     useEffect(() => {
         if (!gameCon) return
@@ -231,16 +231,7 @@ export const GameProvider = ({ children }: { children: any }) => {
             on_event(messageEvent, parsedData.payload, parsedData.log)
         }
 
-        const loginInfo = {
-            action: "login",
-            payload: {
-                discord_id: user?.id,
-                discord_avatar: user?.avatar,
-                name: user?.global_name,
-            },
-        }
-
-        gameCon.send(JSON.stringify(loginInfo))
+        tryLogin()
     }, [gameCon, connecting])
 
     function connect() {
@@ -257,12 +248,18 @@ export const GameProvider = ({ children }: { children: any }) => {
             console.log("WebSocket connection established")
             setGameCon(ws)
         }
+
+        ws.onclose = () => {
+            console.log("WebSocket connection closed")
+            setGameCon(null)
+            setExternalUser(null)
+        }
     }
 
     useEffect(() => {
-        if (!user) return
+        if (!externalUser) return
         connect()
-    }, [user])
+    }, [externalUser])
 
     return (
         <GamestateContext.Provider
@@ -280,6 +277,10 @@ export const GameProvider = ({ children }: { children: any }) => {
                 realm,
                 setRealm,
                 realmSettings,
+                user,
+                setUser,
+                run,
+                setRun,
             }}
         >
             {children}
