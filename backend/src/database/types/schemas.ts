@@ -33,8 +33,10 @@ export interface RunSchema {
     user_id: string
     active: boolean
     party_hp: number
+    party_max_hp: number
     party_hp_regen: number
     party_mana: number
+    party_max_mana: number
     party_mana_regen: number
     party_damage: number
     mods: Record<string, any>

@@ -14,6 +14,7 @@ export enum GameEvent {
     LOG_SERVER_ERROR = "log_server_error",
     RUN_UPDATED = "run_updated",
     RUN_ENDED = "run_ended",
+    TILE_UPDATED = "tile_updated",
 }
 
 export type ServerMessage = {
@@ -26,6 +27,7 @@ export enum UserAction {
     LOGIN = "login",
     START_RUN = "start_run",
     END_RUN = "end_run",
+    ACTIVATE_TILE = "activate_tile",
 }
 
 export type ClientMessage = {

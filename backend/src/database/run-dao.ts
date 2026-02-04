@@ -1,9 +1,21 @@
 import { database } from "../index.js"
+import { Run } from "../models/run.js"
 import { RunSchema } from "./types/schemas.js"
 
 export class RunDao {
-    static async getActiveRunByUserId(userId: string): Promise<RunSchema | null> {
-        const res = await database.from("run").select("*").eq("user_id", userId).eq("active", true).select()
+    static async getActiveRunByUserId(userId: string): Promise<Run | null> {
+        const res = await database
+            .from("run")
+            .select(
+                `*,
+                floors:floor (
+                    *,
+                    tiles:tile ( *  )
+                )`
+            )
+            .eq("user_id", userId)
+            .eq("active", true)
+
         if (res.error) {
             console.error(res.error.message)
             return null
@@ -13,29 +25,28 @@ export class RunDao {
             throw new Error(`Found ${res.data.length} active runs for user ID ${userId}`)
         }
 
-        return res.data ? (res.data[0] as unknown as RunSchema) : null
+        const fullRun: any = res.data[0]
+
+        if (!fullRun) return null
+
+        fullRun.floors.forEach((floor: any) => {
+            floor.tiles = floor.tiles.reduce((acc: any, tile: any) => {
+                acc[tile.x + "_" + tile.y] = tile
+                return acc
+            }, {})
+        })
+
+        return new Run(fullRun)
     }
 
-    static async createRun(run: Partial<RunSchema> | any): Promise<RunSchema | null> {
-        const res = await database
-            .from("run")
-            .insert({
-                user_id: run.user_id,
-                active: run.active,
-                party_hp: run.party_hp,
-                party_hp_regen: run.party_hp_regen,
-                party_mana: run.party_mana,
-                party_mana_regen: run.party_mana_regen,
-                party_damage: run.party_damage,
-                mods: run.mods,
-            })
-            .select()
+    static async createRun(run: Partial<RunSchema> | any): Promise<RunSchema> {
+        const res = await database.from("run").insert(run).select()
 
         if (res.error) {
             throw new Error(`Failed to create run for user ID ${run.user_id}: ${res.error.message}`)
         }
 
-        return res.data ? (res.data[0] as unknown as RunSchema) : null
+        return res.data[0] as unknown as RunSchema
     }
 
     static async updateRun(run: RunSchema): Promise<RunSchema> {

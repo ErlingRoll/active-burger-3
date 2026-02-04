@@ -1,4 +1,5 @@
 import { database } from "../index.js"
+import { Tile } from "../models/tile.js"
 import { TileSchema } from "./types/schemas.js"
 
 export class TileDao {
@@ -15,6 +16,22 @@ export class TileDao {
             }
         }
         return tiles
+    }
+
+    static async getTileById(id: string): Promise<Tile> {
+        const res = await database.from("tile").select("*").eq("id", id).single()
+        if (res.error) {
+            throw new Error(`Failed to get tile by ID ${id}: ${res.error.message}`)
+        }
+        return res.data as unknown as Tile
+    }
+
+    static async createTile(tile: Partial<TileSchema> | any): Promise<TileSchema> {
+        const res = await database.from("tile").insert(tile).select()
+        if (res.error) {
+            throw new Error(`Failed to create tile: ${res.error.message}`)
+        }
+        return res.data![0] as unknown as TileSchema
     }
 
     static async createTiles(tiles: TileSchema[] | any): Promise<TileSchema[]> {

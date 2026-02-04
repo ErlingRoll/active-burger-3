@@ -1,3 +1,4 @@
+import { TileDao } from "../database/tile-dao.js"
 import { TileSchema } from "../database/types/schemas.js"
 import { TileType } from "../database/types/tiles.js"
 
@@ -22,5 +23,23 @@ export class Tile implements TileSchema {
         this.type = schema.type
         this.hidden = schema.hidden
         this.tile_type = schema.tile_type
+    }
+
+    async sync(): Promise<void> {
+        await TileDao.updateTile(this)
+    }
+
+    static async loadById(id: string): Promise<Tile> {
+        const tile = await TileDao.getTileById(id)
+        return new Tile(tile)
+    }
+
+    static createFromSchema(schema: TileSchema): Tile {
+        return new Tile(schema)
+    }
+
+    async reveal(): Promise<void> {
+        this.hidden = false
+        await this.sync()
     }
 }

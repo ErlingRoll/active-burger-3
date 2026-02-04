@@ -1,3 +1,4 @@
+import { Tile } from "../game/objects"
 import { Realm } from "../game/world"
 
 class GameActions {
@@ -42,6 +43,14 @@ class GameActions {
         const action = {
             action: "end_run",
             payload: {},
+        }
+        this.send(action)
+    }
+
+    activateTile(tile: Tile) {
+        const action = {
+            action: "activate_tile",
+            payload: { tile },
         }
         this.send(action)
     }

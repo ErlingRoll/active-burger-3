@@ -6,7 +6,7 @@ export class FloorDao {
         const res = await database
             .from("floor")
             .insert({
-                run_id: floor.run_id,
+                run_id: floor.run_id!,
                 number: floor.number,
                 mods: floor.mods,
             })

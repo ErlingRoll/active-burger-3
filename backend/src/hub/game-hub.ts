@@ -5,6 +5,7 @@ import { ClientId, ClientMessage, GameEvent, ServerMessage, UserAction } from ".
 import { User } from "../models/user.js"
 import { UserActions } from "./actions/user-actions.js"
 import { RunActions } from "./actions/run-actions.js"
+import { TileActions } from "./actions/tile-actions.js"
 
 export class GameHub {
     private readonly clientsById = new Map<ClientId, ClientConnection>()
@@ -33,6 +34,15 @@ export class GameHub {
 
     addUser(clientId: ClientId, user: User): void {
         this.users.set(clientId, user)
+    }
+
+    getUserByUserId(userId: string): User | null {
+        for (const user of this.users.values()) {
+            if (user.id === userId) {
+                return user
+            }
+        }
+        return null
     }
 
     getUserByClientId(clientId: ClientId): User {
@@ -128,7 +138,7 @@ export class GameHub {
     private route(clientId: ClientId, msg: ClientMessage): void {
         const action = msg.action as UserAction
         const payload = msg.payload ?? ({} as any)
-        const userId = msg.userId
+        const user = this.getUserByClientId(clientId)
 
         switch (action) {
             case UserAction.LOGIN:
@@ -141,6 +151,10 @@ export class GameHub {
 
             case UserAction.END_RUN:
                 RunActions.endRun({ clientId, payload })
+                return
+
+            case UserAction.ACTIVATE_TILE:
+                TileActions.activateTile({ clientId, user, payload })
                 return
 
             default:

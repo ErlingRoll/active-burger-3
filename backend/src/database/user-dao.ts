@@ -3,12 +3,12 @@ import { UserSchema } from "./types/schemas.js"
 
 export class UserDao {
     static async getUserByDiscordId({ discordId }: { discordId: string }): Promise<UserSchema | null> {
-        const res = await database.from("user").select("*").eq("discord_id", discordId).select()
+        const res = await database.from("user").select("*").eq("discord_id", discordId)
         return res.data ? (res.data[0] as UserSchema) : null
     }
 
     static async getUserById({ userId }: { userId: string }): Promise<UserSchema | null> {
-        const res = await database.from("user").select("*").eq("id", userId).select()
+        const res = await database.from("user").select("*").eq("id", userId)
         return res.data ? (res.data[0] as UserSchema) : null
     }
 

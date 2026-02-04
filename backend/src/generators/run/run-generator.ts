@@ -1,11 +1,21 @@
 import { RunDao } from "../../database/run-dao.js"
 import { RunSchema } from "../../database/types/schemas.js"
-import { hub } from "../../index.js"
 import { Run } from "../../models/run.js"
 import { User } from "../../models/user.js"
+import { FloorGenerator } from "../floor/floor-generator.js"
 
 export class RunGenerator {
     static async startRun(user: User): Promise<Run> {
+        const runSchema = await new RunGenerator().generateRun(user)
+        const run = Run.createFromSchema(runSchema)
+
+        const firstFloor = await FloorGenerator.generateFloor({ user, run })
+        run.floors.push(firstFloor)
+
+        return run
+    }
+
+    async generateRun(user: User): Promise<RunSchema> {
         const party = user.getParty()
         if (party.length === 0) {
             throw new Error(
@@ -27,13 +37,14 @@ export class RunGenerator {
             user_id: user.id,
             active: true,
             party_hp,
+            party_max_hp: party_hp,
             party_hp_regen,
             party_mana,
+            party_max_mana: party_mana,
             party_mana_regen,
             party_damage,
         }
 
-        const runSchema = await RunDao.createRun(run)
-        return Run.createFromSchema(runSchema!)
+        return await RunDao.createRun(run)
     }
 }

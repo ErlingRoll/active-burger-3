@@ -6,7 +6,7 @@ import { Terrain } from "../models/terrain"
 import { toast } from "react-toastify"
 import { Item } from "../models/item"
 import { Realm, realmBackground, RealmSettings } from "../game/world"
-import { Run, User } from "../game/objects"
+import { Run, Tile, User } from "../game/objects"
 
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
@@ -155,11 +155,25 @@ export const GameProvider = ({ children }: { children: any }) => {
             case "run_ended":
                 setRun(null)
                 break
+            case "tile_updated":
+                updateTile(payload.tile)
+                break
             case "log":
                 break
             default:
                 console.error("Unhandled WebSocket event:", event, payload, log)
         }
+    }
+
+    function updateTile(updatedTile: Tile) {
+        setRun((prevRun) => {
+            if (!prevRun) return prevRun
+            const newRun = { ...prevRun }
+            const floorIndex = newRun.floors.length - 1
+            const floor = newRun.floors[floorIndex]
+            floor.tiles[`${updatedTile.x}_${updatedTile.y}`] = updatedTile
+            return newRun
+        })
     }
 
     function on_login_success(data: any) {
