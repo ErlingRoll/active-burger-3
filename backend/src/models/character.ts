@@ -1,24 +1,24 @@
 import { CharacterDao } from "../database/character-dao.js"
-import { CharacterSchema } from "../database/types/schemas.js"
+import { BaseSchema, CharacterSchema } from "../database/types/schemas.js"
 
-export class Character implements CharacterSchema {
-    id!: string
-    created_at!: string
-    user_id!: string
-    name!: string
-    level!: number
-    level_progress!: number
-    hp!: number
-    hp_regen!: number
-    damage!: number
-    mana!: number
-    mana_regen!: number
-    mana_cost!: number
-    cooldown!: number
-    texture!: string
-    party_position!: number
+export class Character implements BaseSchema, CharacterSchema {
+    id: string
+    created_at: string
+    user_id: string
+    name: string
+    level: number
+    level_progress: number
+    hp: number
+    hp_regen: number
+    damage: number
+    mana: number
+    mana_regen: number
+    mana_cost: number
+    cooldown: number
+    texture: string
+    party_position: number
 
-    private constructor(schema: CharacterSchema) {
+    private constructor(schema: Character) {
         this.id = schema.id
         this.created_at = schema.created_at
         this.user_id = schema.user_id
@@ -42,6 +42,6 @@ export class Character implements CharacterSchema {
     }
 
     static async loadBySchema(schema: CharacterSchema): Promise<Character> {
-        return new Character(schema)
+        return new Character(schema as Character)
     }
 }

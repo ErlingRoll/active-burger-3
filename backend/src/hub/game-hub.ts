@@ -49,6 +49,15 @@ export class GameHub {
         return this.users.get(clientId)!
     }
 
+    getClientIdByUserId(userId: string): ClientId | null {
+        for (const [clientId, user] of this.users.entries()) {
+            if (user.id === userId) {
+                return clientId
+            }
+        }
+        return null
+    }
+
     logoutClient(clientId: ClientId): void {
         this.users.delete(clientId)
         const conn = this.clientsById.get(clientId)
@@ -65,16 +74,30 @@ export class GameHub {
     }
 
     /** Send a server message to one client */
-    sendTo(clientId: ClientId, msg: ServerMessage): boolean {
+    sendToClient(clientId: ClientId, msg: ServerMessage): boolean {
         const conn = this.clientsById.get(clientId)
         if (!conn) return false
         return conn.send(msg)
     }
 
-    sendUserError(clientId: ClientId, message: string): void {
+    sendToUser(userId: string, msg: ServerMessage): boolean {
+        const clientId = this.getClientIdByUserId(userId)
+        if (!clientId) return false
+        const conn = this.clientsById.get(clientId)
+        if (!conn) return false
+        return conn.send(msg)
+    }
+
+    sendClientError(clientId: ClientId, message: string): void {
         {
-            this.sendTo(clientId, { event: GameEvent.LOG_USER_ERROR, payload: { message } })
+            this.sendToClient(clientId, { event: GameEvent.LOG_USER_ERROR, payload: { message } })
         }
+    }
+
+    sendUserError(userId: string, message: string): void {
+        const clientId = this.getClientIdByUserId(userId)
+        if (!clientId) return
+        this.sendToClient(clientId, { event: GameEvent.LOG_USER_ERROR, payload: { message } })
     }
 
     /** Heartbeat: ping all clients, and drop dead ones */
@@ -158,7 +181,7 @@ export class GameHub {
                 return
 
             default:
-                this.sendTo(clientId, {
+                this.sendToClient(clientId, {
                     event: GameEvent.LOG_USER_ERROR,
                     payload: { message: `Unknown action: ${action}` },
                 })

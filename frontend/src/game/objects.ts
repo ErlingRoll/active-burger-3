@@ -1,22 +1,26 @@
 import { CharacterSchema, UserSchema } from "../models/account"
 import { RenderObject } from "../models/object"
-import { FloorSchema, RunSchema, TileSchema } from "../models/schemas"
+import { BaseSchema, FloorSchema, RunSchema, TileObjectSchema, TileSchema } from "../models/schemas"
 
-export interface User extends UserSchema {
+export interface User extends BaseSchema, UserSchema {
     characters: CharacterSchema[]
 }
 
-export interface Character extends CharacterSchema {}
+export interface Character extends BaseSchema, CharacterSchema {}
 
-export interface Run extends RunSchema {
+export interface Run extends BaseSchema, RunSchema {
     floors: Floor[]
 }
 
-export interface Floor extends FloorSchema {
+export interface Floor extends BaseSchema, FloorSchema {
     tiles: Tile[]
 }
 
-export interface Tile extends TileSchema {}
+export interface Tile extends BaseSchema, TileSchema {
+    tile_object: TileObject | null
+}
+
+export interface TileObject extends BaseSchema, TileObjectSchema {}
 
 export const TERRAIN_OBJECTS: { [object_id: string]: Partial<RenderObject> } = {
     gold_ore: {

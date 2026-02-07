@@ -10,7 +10,10 @@ export class RunDao {
                 `*,
                 floors:floor (
                     *,
-                    tiles:tile ( *  )
+                    tiles:tile (
+                        *,
+                        tile_object:tile_object (*)
+                    )
                 )`
             )
             .eq("user_id", userId)
@@ -49,7 +52,7 @@ export class RunDao {
         return res.data[0] as unknown as RunSchema
     }
 
-    static async updateRun(run: RunSchema): Promise<RunSchema> {
+    static async updateRun(run: Run): Promise<RunSchema> {
         const res = await database
             .from("run")
             .update({
@@ -60,6 +63,8 @@ export class RunDao {
                 party_mana_regen: run.party_mana_regen,
                 party_damage: run.party_damage,
                 mods: run.mods,
+                gold: run.gold,
+                essence: run.essence,
             })
             .eq("id", run.id)
 

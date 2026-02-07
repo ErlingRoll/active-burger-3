@@ -8,7 +8,7 @@ export class RunActions {
         const user = hub.getUserByClientId(clientId)
         const run = await RunGenerator.startRun(user)
 
-        hub.sendTo(clientId, {
+        hub.sendToClient(clientId, {
             event: GameEvent.RUN_UPDATED,
             payload: {
                 run: run,
@@ -21,18 +21,18 @@ export class RunActions {
 
         const run = await Run.loadActiveByUserId(user.id)
         if (!run) {
-            hub.sendUserError(clientId, `No active run to end.`)
+            hub.sendClientError(clientId, `No active run to end.`)
             return
         }
 
         try {
             await run.end()
-            hub.sendTo(clientId, {
+            hub.sendToClient(clientId, {
                 event: GameEvent.RUN_ENDED,
                 payload: {},
             })
         } catch (error: any) {
-            hub.sendUserError(clientId, `Failed to end run: ${error.message}`)
+            hub.sendClientError(clientId, `Failed to end run: ${error.message}`)
         }
     }
 }

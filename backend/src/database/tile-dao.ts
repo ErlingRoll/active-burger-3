@@ -1,3 +1,4 @@
+import { TileGenerator } from "../generators/tile/tile-generator.js"
 import { database } from "../index.js"
 import { Tile } from "../models/tile.js"
 import { TileSchema } from "./types/schemas.js"
@@ -19,15 +20,21 @@ export class TileDao {
     }
 
     static async getTileById(id: string): Promise<Tile> {
-        const res = await database.from("tile").select("*").eq("id", id).single()
+        const res = await database.from("tile").select(`*, tile_object:tile_object (*)`).eq("id", id).single()
         if (res.error) {
             throw new Error(`Failed to get tile by ID ${id}: ${res.error.message}`)
         }
-        return res.data as unknown as Tile
+        const tile = res.data as unknown as Tile
+        tile.tile_object = TileGenerator.tileObjectFromModel(tile.tile_object)
+
+        return tile
     }
 
-    static async createTile(tile: Partial<TileSchema> | any): Promise<TileSchema> {
-        const res = await database.from("tile").insert(tile).select()
+    static async createTile(tile: Partial<TileSchema>): Promise<TileSchema> {
+        const res = await database
+            .from("tile")
+            .insert(tile as TileSchema)
+            .select()
         if (res.error) {
             throw new Error(`Failed to create tile: ${res.error.message}`)
         }
@@ -44,7 +51,7 @@ export class TileDao {
         return res.data as unknown as TileSchema[]
     }
 
-    static async updateTile(tile: TileSchema): Promise<TileSchema> {
+    static async updateTile(tile: Tile): Promise<TileSchema> {
         const res = await database
             .from("tile")
             .update({

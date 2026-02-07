@@ -76,6 +76,41 @@ export type Database = {
           },
         ]
       }
+      chest: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          rarity: string
+          tile_id: string
+          tile_object_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          rarity: string
+          tile_id: string
+          tile_object_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          rarity?: string
+          tile_id?: string
+          tile_object_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chest_tile_id_fkey"
+            columns: ["tile_id"]
+            isOneToOne: false
+            referencedRelation: "tile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       floor: {
         Row: {
           created_at: string
@@ -114,27 +149,36 @@ export type Database = {
           damage: number
           hp: number
           id: string
+          max_hp: number
           name: string
+          rarity: string
           texture: string
           tile_id: string | null
+          tile_object_type: string
         }
         Insert: {
           created_at?: string
           damage: number
           hp: number
           id?: string
+          max_hp: number
           name: string
+          rarity: string
           texture: string
           tile_id?: string | null
+          tile_object_type?: string
         }
         Update: {
           created_at?: string
           damage?: number
           hp?: number
           id?: string
+          max_hp?: number
           name?: string
+          rarity?: string
           texture?: string
           tile_id?: string | null
+          tile_object_type?: string
         }
         Relationships: [
           {
@@ -150,6 +194,8 @@ export type Database = {
         Row: {
           active: boolean
           created_at: string
+          essence: number | null
+          gold: number | null
           id: string
           mods: Json
           party_damage: number
@@ -157,11 +203,15 @@ export type Database = {
           party_hp_regen: number
           party_mana: number
           party_mana_regen: number
+          party_max_hp: number
+          party_max_mana: number
           user_id: string | null
         }
         Insert: {
           active?: boolean
           created_at?: string
+          essence?: number | null
+          gold?: number | null
           id?: string
           mods?: Json
           party_damage: number
@@ -169,11 +219,15 @@ export type Database = {
           party_hp_regen: number
           party_mana: number
           party_mana_regen: number
+          party_max_hp: number
+          party_max_mana: number
           user_id?: string | null
         }
         Update: {
           active?: boolean
           created_at?: string
+          essence?: number | null
+          gold?: number | null
           id?: string
           mods?: Json
           party_damage?: number
@@ -181,6 +235,8 @@ export type Database = {
           party_hp_regen?: number
           party_mana?: number
           party_mana_regen?: number
+          party_max_hp?: number
+          party_max_mana?: number
           user_id?: string | null
         }
         Relationships: [
@@ -241,12 +297,60 @@ export type Database = {
           },
         ]
       }
+      tile_object: {
+        Row: {
+          created_at: string
+          damage: number | null
+          hp: number | null
+          id: string
+          max_hp: number | null
+          name: string
+          rarity: string
+          texture: string
+          tile_id: string
+          tile_object_type: string
+        }
+        Insert: {
+          created_at?: string
+          damage?: number | null
+          hp?: number | null
+          id?: string
+          max_hp?: number | null
+          name: string
+          rarity: string
+          texture: string
+          tile_id: string
+          tile_object_type: string
+        }
+        Update: {
+          created_at?: string
+          damage?: number | null
+          hp?: number | null
+          id?: string
+          max_hp?: number | null
+          name?: string
+          rarity?: string
+          texture?: string
+          tile_id?: string
+          tile_object_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tile_object_tile_id_fkey"
+            columns: ["tile_id"]
+            isOneToOne: true
+            referencedRelation: "tile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user: {
         Row: {
           admin: boolean | null
           created_at: string
           discord_avatar: string | null
           discord_id: string | null
+          essence: number | null
           id: string
           name: string | null
         }
@@ -255,6 +359,7 @@ export type Database = {
           created_at?: string
           discord_avatar?: string | null
           discord_id?: string | null
+          essence?: number | null
           id?: string
           name?: string | null
         }
@@ -263,6 +368,7 @@ export type Database = {
           created_at?: string
           discord_avatar?: string | null
           discord_id?: string | null
+          essence?: number | null
           id?: string
           name?: string | null
         }

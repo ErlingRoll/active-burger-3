@@ -7,7 +7,7 @@ import { User } from "../../models/user.js"
 import { GameEvent } from "../types.js"
 
 export interface ActiveTilePayload {
-    tile: TileSchema
+    tile: Tile
 }
 
 export class TileActions {
@@ -20,11 +20,12 @@ export class TileActions {
         user: User
         payload: ActiveTilePayload
     }): Promise<void> {
+        if (!payload.tile || !payload.tile.id) return
         const tile = await Tile.loadById(payload.tile.id)
 
         if (tile.hidden) {
             await tile.reveal()
-            hub.sendTo(clientId, {
+            hub.sendToClient(clientId, {
                 event: GameEvent.TILE_UPDATED,
                 payload: {
                     tile: tile,
@@ -35,7 +36,7 @@ export class TileActions {
 
         const activeRun = await Run.loadActiveByUserId(user.id)
         if (!activeRun) {
-            hub.sendUserError(clientId, `No active run found.`)
+            hub.sendClientError(clientId, `No active run found.`)
             return
         }
 
@@ -44,14 +45,8 @@ export class TileActions {
                 break
             case TileType.LOADING:
                 break
-            case TileType.EXIT:
-                await activeRun.exitFloor()
-                hub.sendTo(clientId, {
-                    event: GameEvent.RUN_UPDATED,
-                    payload: {
-                        run: activeRun,
-                    },
-                })
+            case TileType.OBJECT:
+                tile.activate({ user, activeRun })
                 break
             default:
                 throw new Error(`Unhandled tile type: ${tile.tile_type}`)

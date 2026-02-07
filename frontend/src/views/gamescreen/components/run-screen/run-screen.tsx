@@ -1,20 +1,26 @@
-import { JSX, useContext, useEffect } from "react"
+import { JSX, useContext, useEffect, useState } from "react"
 import { PlayerContext } from "../../../../contexts/player-context"
 import { GamestateContext } from "../../../../contexts/gamestate-context"
 import { Tile } from "../../../../game/objects"
 import { TileType } from "../../../../models/tiles"
+import { RiCopperCoinFill } from "react-icons/ri"
+import { FaBolt } from "react-icons/fa"
+import { FaFireFlameCurved } from "react-icons/fa6"
 
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
 const RunScreen = () => {
     const { user, run, setRun } = useContext(GamestateContext)
     const { gameActions } = useContext(PlayerContext)
+    const [tiles, setTiles] = useState<{ [pos: string]: Tile }>({})
 
     useEffect(() => {
-        // console.log("Current tiles:", tiles)
+        const currentFloor = run?.floors[run.floors.length - 1]
+        const tiles = currentFloor?.tiles || {}
+        setTiles(tiles)
+        console.log("Run:", run)
+        console.log("Tiles:", tiles)
     }, [run])
-
-    const partyLeader = user.characters[0]
 
     function endRun() {
         gameActions.endRun()
@@ -53,8 +59,6 @@ const RunScreen = () => {
 
     const getPosKey = (x: number, y: number) => x + "_" + y
 
-    const tiles = run?.floors[run.floors.length - 1].tiles
-
     if (!tiles) {
         return (
             <div className="absolute w-full h-screen flex items-center justify-center">
@@ -66,7 +70,8 @@ const RunScreen = () => {
     const tileElement = (tile: Tile): JSX.Element => {
         if (!tile) return null
 
-        if (tile.tile_type === TileType.LOADING) {
+        const tileType = tile.tile_type
+        if (tileType === TileType.LOADING) {
             return (
                 <div
                     className="w-full h-full bg-cover bg-center"
@@ -88,13 +93,29 @@ const RunScreen = () => {
             )
         }
 
+        const tileObject = tile.tile_object
+        // console.log(tileObject)
+        if (tileObject) {
+            console.log(
+                `/src/assets/textures/tile-object/${tileObject.tile_object_type}/${tileObject.tile_object_type}-${tileObject.rarity}.webp`
+            )
+        }
         return (
             <div
                 className="w-full h-full bg-cover bg-center"
                 style={{
-                    backgroundImage: `url(${textures["/src/assets/textures/tile/" + tile.tile_type + ".webp"]})`,
+                    backgroundImage: `url(${textures["/src/assets/textures/tile/default.webp"]})`,
                 }}
-            ></div>
+            >
+                {tileObject && (
+                    <div
+                        style={{
+                            backgroundImage: `url(${textures[`/src/assets/textures/tile-object/${tileObject.tile_object_type}/${tileObject.tile_object_type}-${tileObject.rarity}.webp`]})`,
+                        }}
+                        className="w-full h-full bg-contain"
+                    />
+                )}
+            </div>
         )
     }
 
@@ -109,6 +130,7 @@ const RunScreen = () => {
                             const posKey = getPosKey(x, y)
                             return (
                                 <div
+                                    id={`tile-${posKey}`}
                                     key={posKey}
                                     className="relative w-24 h-24 border-4 rounded bg-gray-200 border-gray-900 hover:border-amber-500 cursor-pointer"
                                 >
@@ -129,8 +151,15 @@ const RunScreen = () => {
                         End Run
                     </button>
                 </div>
-                <div className="text-light text-2xl font-bold bg-[rgba(0,0,0,0.7)] p-4 shadow rounded">
-                    <h2>Floor: {run?.floors.length}</h2>
+                <div className="text-light text-1xl font-bold bg-[rgba(0,0,0,0.7)] p-4 shadow rounded">
+                    <h2 className="text-2xl mb-1">Floor: {run?.floors.length}</h2>
+                    <div className="flex flex-row items-center gap-1">
+                        <RiCopperCoinFill color="gold" /> {run?.gold}
+                    </div>
+                    <div className="flex flex-row items-center gap-1">
+                        <FaFireFlameCurved color="#00F0DF" />
+                        {run?.essence}
+                    </div>
                 </div>
             </div>
         </div>

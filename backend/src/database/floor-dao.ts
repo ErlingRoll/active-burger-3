@@ -1,4 +1,5 @@
 import { database } from "../index.js"
+import { Floor } from "../models/floor.js"
 import { FloorSchema } from "./types/schemas.js"
 
 export class FloorDao {
@@ -27,7 +28,7 @@ export class FloorDao {
         return res.data ? (res.data as unknown as FloorSchema[]) : []
     }
 
-    static async updateFloor(floor: FloorSchema): Promise<FloorSchema> {
+    static async updateFloor(floor: Floor): Promise<FloorSchema> {
         const res = await database
             .from("floor")
             .update({

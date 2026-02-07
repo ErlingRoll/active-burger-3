@@ -1,11 +1,11 @@
 import { RunDao } from "../database/run-dao.js"
-import { RunSchema } from "../database/types/schemas.js"
+import { BaseSchema, RunSchema } from "../database/types/schemas.js"
 import { FloorGenerator } from "../generators/floor/floor-generator.js"
 import { hub } from "../index.js"
 import { Floor } from "./floor.js"
 import { User } from "./user.js"
 
-export class Run implements RunSchema {
+export class Run implements BaseSchema, RunSchema {
     id: string
     created_at: string
     user_id: string
@@ -18,6 +18,8 @@ export class Run implements RunSchema {
     party_mana_regen: number
     party_damage: number
     mods: Record<string, any>
+    gold: number
+    essence: number
 
     floors: Floor[] = []
 
@@ -34,6 +36,8 @@ export class Run implements RunSchema {
         this.party_mana_regen = run.party_mana_regen
         this.party_damage = run.party_damage
         this.mods = run.mods
+        this.gold = run.gold
+        this.essence = run.essence
         this.floors = run.floors || []
     }
 

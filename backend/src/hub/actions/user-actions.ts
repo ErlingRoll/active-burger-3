@@ -20,7 +20,7 @@ export class UserActions {
 
         const activeRun: Run | null = await Run.loadActiveByUserId(user.id)
 
-        hub.sendTo(clientId, {
+        hub.sendToClient(clientId, {
             event: GameEvent.LOGIN_SUCCESS,
             payload: {
                 user: user,

@@ -1,10 +1,11 @@
 import { database } from "../index.js"
+import { User } from "../models/user.js"
 import { UserSchema } from "./types/schemas.js"
 
 export class UserDao {
-    static async getUserByDiscordId({ discordId }: { discordId: string }): Promise<UserSchema | null> {
+    static async getUserByDiscordId({ discordId }: { discordId: string }): Promise<User | null> {
         const res = await database.from("user").select("*").eq("discord_id", discordId)
-        return res.data ? (res.data[0] as UserSchema) : null
+        return res.data ? await User.loadBySchema(res.data[0] as UserSchema) : null
     }
 
     static async getUserById({ userId }: { userId: string }): Promise<UserSchema | null> {
@@ -12,7 +13,7 @@ export class UserDao {
         return res.data ? (res.data[0] as UserSchema) : null
     }
 
-    static async createUserWithDiscordIdAndName(discordId: string, name: string): Promise<UserSchema> {
+    static async createUserWithDiscordIdAndName(discordId: string, name: string): Promise<User> {
         const res = await database
             .from("user")
             .insert({
@@ -25,10 +26,10 @@ export class UserDao {
             throw new Error(`Failed to create user with discord ID ${discordId}: ${res.error?.message}`)
         }
 
-        return res.data[0] as UserSchema
+        return await User.loadBySchema(res.data[0] as UserSchema)
     }
 
-    static async updateUser(user: UserSchema): Promise<UserSchema> {
+    static async updateUser(user: User): Promise<UserSchema> {
         const res = await database
             .from("user")
             .update({

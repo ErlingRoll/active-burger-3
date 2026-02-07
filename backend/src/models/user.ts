@@ -1,23 +1,23 @@
-import { UserSchema } from "../database/types/schemas.js"
+import { BaseSchema, UserSchema } from "../database/types/schemas.js"
 import { UserDao } from "../database/user-dao.js"
 import { Character } from "./character.js"
 
-export class User implements UserSchema {
+export class User implements BaseSchema, UserSchema {
     static PARTY_SIZE = 3
 
-    id!: string
-    name!: string
-    created_at!: string
-    discord_id!: string | null
-    discord_avatar!: string | null
-    admin!: boolean | null
+    id: string
+    name: string
+    created_at: string
+    discord_id: string | null
+    discord_avatar: string | null
+    admin: boolean | null
 
     characters!: Character[]
 
-    private constructor(schema: UserSchema) {
+    private constructor(schema: User) {
         this.id = schema.id
-        this.name = schema.name
         this.created_at = schema.created_at
+        this.name = schema.name
         this.discord_id = schema.discord_id
         this.discord_avatar = schema.discord_avatar
         this.admin = schema.admin
@@ -27,10 +27,15 @@ export class User implements UserSchema {
         const userSchema = await UserDao.getUserById({ userId })
         if (!userSchema) throw new Error(`User with discord ID ${userId} not found`)
 
-        const user = new User(userSchema)
+        const user = await User.loadBySchema(userSchema)
 
         user.characters = await Character.loadListByUserId(user.id)
 
+        return user
+    }
+
+    static async loadBySchema(schema: UserSchema): Promise<User> {
+        const user = new User(schema as User)
         return user
     }
 

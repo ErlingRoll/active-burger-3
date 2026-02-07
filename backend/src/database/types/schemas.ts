@@ -1,17 +1,20 @@
+import { Rarity, TileObjectType } from "../../models/constants.js"
 import { TileType } from "./tiles.js"
 
-export interface UserSchema {
+export interface BaseSchema {
     id: string
     created_at: string
+}
+
+export interface UserSchema {
     name: string
     discord_id: string | null
     discord_avatar: string | null
-    admin: boolean | null
+    admin: boolean
+    essence: number
 }
 
 export interface CharacterSchema {
-    id: string
-    created_at: string
     user_id: string
     name: string
     level: number
@@ -28,8 +31,6 @@ export interface CharacterSchema {
 }
 
 export interface RunSchema {
-    id: string
-    created_at: string
     user_id: string
     active: boolean
     party_hp: number
@@ -40,19 +41,17 @@ export interface RunSchema {
     party_mana_regen: number
     party_damage: number
     mods: Record<string, any>
+    gold: number
+    essence: number
 }
 
 export interface FloorSchema {
-    id: string
-    created_at: string
     run_id: string
     number: number
     mods: Record<string, any>
 }
 
 export interface TileSchema {
-    id: string
-    created_at: string
     run_id: string
     floor_id: string
     x: number
@@ -60,4 +59,15 @@ export interface TileSchema {
     type: string
     hidden: boolean
     tile_type: TileType
+}
+
+export interface TileObjectSchema {
+    tile_id: string
+    tile_object_type: TileObjectType
+    rarity: Rarity
+    texture: string
+    name: string
+    hp?: number | null
+    max_hp?: number | null
+    damage?: number | null
 }

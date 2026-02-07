@@ -5,6 +5,23 @@ import { FloorGenerator } from "../floor/floor-generator.js"
 import { TileDao } from "../../database/tile-dao.js"
 import { TileType } from "../../database/types/tiles.js"
 import { User } from "../../models/user.js"
+import { Rarity, TileObjectType } from "../../models/constants.js"
+import { TileObject } from "../../models/tile-object.js"
+import { Dice } from "../../game/dice.js"
+import { TileObjectDao } from "../../database/tile-object-dao.js"
+import { capitalize } from "../../utils/string-utils.js"
+import { Chest } from "../../models/chest.js"
+import { Exit } from "../../models/exit.js"
+
+const tileWeights = {
+    [TileType.EMPTY]: 50,
+    [TileType.OBJECT]: 20,
+}
+
+const tileObjectWeights = {
+    [TileObjectType.EXIT]: 1,
+    [TileObjectType.CHEST]: 1,
+}
 
 export class TileGenerator {
     static async generateTiles({
@@ -22,15 +39,25 @@ export class TileGenerator {
         const exitTileX = Math.floor(Math.random() * floorWidth)
         const exitTileY = Math.floor(Math.random() * floorHeight)
 
+        const tileObjectPromises: Promise<TileObject>[] = []
         const tiles: Promise<Tile>[] = []
         for (let x = 0; x < floorWidth; x++) {
             for (let y = 0; y < floorHeight; y++) {
                 if (x === exitTileX && y === exitTileY) {
-                    tiles.push(TileGenerator.createTileAsync({ user, run, floor, x, y, tile_type: TileType.EXIT }))
+                    tiles.push(
+                        TileDao.createTile({
+                            run_id: run.id,
+                            floor_id: floor.id,
+                            x,
+                            y,
+                            tile_type: TileType.OBJECT,
+                            hidden: true,
+                        }).then((tileSchema) => Tile.createFromSchema(tileSchema))
+                    )
                     continue
                 }
 
-                tiles.push(TileGenerator.createTileAsync({ user, run, floor, x, y, tile_type: TileType.EMPTY }))
+                tiles.push(TileGenerator.generateTile({ user, run, floor, x, y }))
             }
         }
 
@@ -45,13 +72,12 @@ export class TileGenerator {
         return tileMap
     }
 
-    static createTileAsync({
+    static async generateTile({
         user,
         run,
         floor,
         x,
         y,
-        tile_type,
         hidden = true,
     }: {
         user: User
@@ -59,16 +85,76 @@ export class TileGenerator {
         floor: Floor
         x: number
         y: number
-        tile_type: TileType
         hidden?: boolean
     }): Promise<Tile> {
-        return TileDao.createTile({
+        const tileType = Dice.pickWeighted({ table: tileWeights, defaultValue: TileType.EMPTY })
+        const hasObject = tileType === TileType.OBJECT
+        const tileObjectType = Dice.pickWeighted({ table: tileObjectWeights, defaultValue: TileObjectType.CHEST })
+
+        const tile = await TileDao.createTile({
             run_id: run.id,
             floor_id: floor.id,
             x,
             y,
-            tile_type,
+            tile_type: tileType,
             hidden,
         }).then((tileSchema) => Tile.createFromSchema(tileSchema))
+
+        if (hasObject) {
+            tile.tile_object = await TileObjectDao.createTileObject({
+                tile_id: tile.id,
+                tile_object_type: tileObjectType,
+                rarity: Rarity.COMMON,
+                texture: tileObjectType,
+                name: capitalize(tileObjectType),
+                hp: null,
+                max_hp: null,
+                damage: null,
+            }).then((tileObjectSchema) => (tileObjectSchema ? TileObject.fromSchema(tileObjectSchema) : null))
+        }
+
+        return tile
+    }
+
+    static async generateExitTIle({
+        run,
+        floor,
+        x,
+        y,
+    }: {
+        run: Run
+        floor: Floor
+        x: number
+        y: number
+    }): Promise<Tile> {
+        const tile = await TileDao.createTile({
+            run_id: run.id,
+            floor_id: floor.id,
+            x,
+            y,
+            tile_type: TileType.OBJECT,
+            hidden: true,
+        }).then((tileSchema) => Tile.createFromSchema(tileSchema))
+        tile.tile_object = await TileObjectDao.createTileObject({
+            tile_id: tile.id,
+            tile_object_type: TileObjectType.EXIT,
+            rarity: Rarity.COMMON,
+            texture: TileObjectType.EXIT,
+            name: "Exit",
+        }).then((tileObjectSchema) => (tileObjectSchema ? TileObject.fromSchema(tileObjectSchema) : null))
+
+        return tile
+    }
+
+    static tileObjectFromModel(tileObject: TileObject | null): TileObject | null {
+        if (!tileObject) return null
+        switch (tileObject.tile_object_type) {
+            case TileObjectType.CHEST:
+                return Chest.fromModel(tileObject)
+            case TileObjectType.EXIT:
+                return Exit.fromModel(tileObject)
+            default:
+                return TileObject.fromModel(tileObject)
+        }
     }
 }
