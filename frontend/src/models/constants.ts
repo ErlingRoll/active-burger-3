@@ -7,5 +7,15 @@ export enum Rarity {
 }
 
 export enum TileObjectType {
+    EXIT = "exit",
     CHEST = "chest",
+}
+
+export enum RunOptionType {
+    LOOT = "loot",
+}
+
+export enum LootType {
+    GOLD = "gold",
+    ESSENCE = "essence",
 }

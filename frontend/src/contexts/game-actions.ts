@@ -1,4 +1,4 @@
-import { Tile } from "../game/objects"
+import { RunOption, Tile } from "../game/objects"
 import { Realm } from "../game/world"
 
 class GameActions {
@@ -51,6 +51,14 @@ class GameActions {
         const action = {
             action: "activate_tile",
             payload: { tile },
+        }
+        this.send(action)
+    }
+
+    selectRunOption(payload: { tile_id: string; option: RunOption }) {
+        const action = {
+            action: "select_run_option",
+            payload,
         }
         this.send(action)
     }

@@ -166,26 +166,30 @@ export class GameHub {
         switch (action) {
             case UserAction.LOGIN:
                 UserActions.handleLogin({ clientId, payload })
-                return
+                break
 
             case UserAction.START_RUN:
                 RunActions.startRun({ clientId, payload })
-                return
+                break
 
             case UserAction.END_RUN:
                 RunActions.endRun({ clientId, payload })
-                return
+                break
 
             case UserAction.ACTIVATE_TILE:
                 TileActions.activateTile({ clientId, user, payload })
-                return
+                break
+
+            case UserAction.SELECT_RUN_OPTION:
+                RunActions.selectRunOption({ clientId, user, payload })
+                break
 
             default:
+                console.error(`Unknown action: ${action}`)
                 this.sendToClient(clientId, {
                     event: GameEvent.LOG_USER_ERROR,
                     payload: { message: `Unknown action: ${action}` },
                 })
-                return
         }
     }
 

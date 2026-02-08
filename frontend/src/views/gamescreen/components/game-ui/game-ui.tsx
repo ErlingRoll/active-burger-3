@@ -1,13 +1,6 @@
 import { useContext } from "react"
 import { UIContext } from "../../../../contexts/ui-context"
-import Inventory from "./components/inventory"
-import CharacterInfo from "./components/character-info"
-import CellInfo from "./components/cell-info"
 import SettingsMenu from "./components/settings-menu"
-import Log from "./components/log"
-import Shop from "./components/shop"
-import Equipment from "./components/equipment"
-import CraftingBench from "./components/crafting-bench"
 import { ToastContainer } from "react-toastify"
 
 const GameUI = ({ selectedCell }: { selectedCell: { x: number; y: number } | null }) => {
@@ -28,17 +21,9 @@ const GameUI = ({ selectedCell }: { selectedCell: { x: number; y: number } | nul
                 className={"cursor-pointer pointer-events-auto"}
                 toastClassName={"bg-dark! border-2 border-primary"}
             />
-            {/* <div className="absolute bottom-0 left-0 m-4 gap-4 flex items-end">
-                <Inventory />
-                <Equipment />
-            </div> */}
-            {/* <div className="absolute flex items-start top-0 left-0">
-                <CharacterInfo />
-                <CellInfo pos={selectedCell} />
-            </div> */}
             <div className="absolute flex flex-col items-end p-4 bottom-0 right-0 gap-4 pointer-events-none">
                 <SettingsMenu />
-                <Log />
+                {/* <Log /> */}
             </div>
             {/* {shopOpen && <Shop />}
             {craftingBenchOpen && <CraftingBench />} */}

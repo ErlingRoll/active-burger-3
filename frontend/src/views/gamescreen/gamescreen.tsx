@@ -1,14 +1,10 @@
 import { useContext, useEffect, useState } from "react"
 import { GamestateContext } from "../../contexts/gamestate-context"
-import { UIContext } from "../../contexts/ui-context"
 import GameUI from "./components/game-ui/game-ui"
 import { PlayerContext } from "../../contexts/player-context"
-import { CharacterContext } from "../../contexts/character-context"
 import loginBackground from "../../assets/images/background.png"
 import HomeScreen from "./components/home-screen/home-screen"
 import RunScreen from "./components/run-screen/run-screen"
-
-const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
 const Gamescreen = () => {
     const [adminCell, setAdminCell] = useState<{ x: number; y: number } | null>(null)

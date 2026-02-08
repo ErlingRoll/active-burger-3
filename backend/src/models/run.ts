@@ -2,8 +2,8 @@ import { RunDao } from "../database/run-dao.js"
 import { BaseSchema, RunSchema } from "../database/types/schemas.js"
 import { FloorGenerator } from "../generators/floor/floor-generator.js"
 import { hub } from "../index.js"
+import { ClassProps } from "../utils/type-utils.js"
 import { Floor } from "./floor.js"
-import { User } from "./user.js"
 
 export class Run implements BaseSchema, RunSchema {
     id: string
@@ -23,7 +23,7 @@ export class Run implements BaseSchema, RunSchema {
 
     floors: Floor[] = []
 
-    constructor(run: Run) {
+    constructor(run: ClassProps<Run>) {
         this.id = run.id
         this.created_at = run.created_at
         this.user_id = run.user_id
@@ -66,5 +66,9 @@ export class Run implements BaseSchema, RunSchema {
         const newFloor = FloorGenerator.generateFloor({ user: user, run: this })
         this.floors.push(await newFloor)
         await this.sync()
+    }
+
+    getStats(): Omit<Run, "floors"> {
+        return { ...structuredClone(this), floors: undefined }
     }
 }

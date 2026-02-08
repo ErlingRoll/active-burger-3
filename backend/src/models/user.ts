@@ -10,17 +10,23 @@ export class User implements BaseSchema, UserSchema {
     created_at: string
     discord_id: string | null
     discord_avatar: string | null
-    admin: boolean | null
+    admin: boolean
+    essence: number
 
     characters!: Character[]
 
-    private constructor(schema: User) {
+    constructor(schema: User) {
         this.id = schema.id
         this.created_at = schema.created_at
         this.name = schema.name
         this.discord_id = schema.discord_id
         this.discord_avatar = schema.discord_avatar
         this.admin = schema.admin
+        this.essence = schema.essence
+    }
+
+    async sync(): Promise<void> {
+        await UserDao.updateUser(this)
     }
 
     static async loadById(userId: string): Promise<User> {

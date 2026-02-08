@@ -28,5 +28,14 @@ export class UserActions {
             },
             log: [`Login successful. Welcome, ${user.name}!`],
         })
+
+        if (activeRun) {
+            hub.sendToUser(user.id, {
+                event: GameEvent.RUN_STATS_UPDATED,
+                payload: {
+                    run_stats: activeRun.getStats(),
+                },
+            })
+        }
     }
 }

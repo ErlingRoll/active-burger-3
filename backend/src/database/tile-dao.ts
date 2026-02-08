@@ -19,14 +19,18 @@ export class TileDao {
         return tiles
     }
 
-    static async getTileById(id: string): Promise<Tile> {
+    static async getTileById(id: string): Promise<Tile | null> {
         const res = await database.from("tile").select(`*, tile_object:tile_object (*)`).eq("id", id).single()
         if (res.error) {
             throw new Error(`Failed to get tile by ID ${id}: ${res.error.message}`)
         }
+
+        if (!res.data) {
+            return null
+        }
+
         const tile = res.data as unknown as Tile
         tile.tile_object = TileGenerator.tileObjectFromModel(tile.tile_object)
-
         return tile
     }
 

@@ -19,7 +19,7 @@ export class FloorGenerator {
 
         const floor = Floor.createFromSchema(floorSchema!)
 
-        floor.tiles = await TileGenerator.generateTiles({ user, run, floor })
+        floor.tiles = await TileGenerator.generateFloorTiles({ user, run, floor })
 
         return floor
     }

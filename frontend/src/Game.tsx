@@ -4,7 +4,6 @@ import Gamescreen from "./views/gamescreen/gamescreen"
 import { UserContext } from "./contexts/user-context"
 import Login from "./views/login/login"
 import { GamestateContext } from "./contexts/gamestate-context"
-import { CharacterContext } from "./contexts/character-context"
 
 function Game() {
     const { externalUser } = useContext(UserContext)

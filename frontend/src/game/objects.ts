@@ -1,4 +1,5 @@
 import { CharacterSchema, UserSchema } from "../models/account"
+import { LootType, Rarity, RunOptionType } from "../models/constants"
 import { RenderObject } from "../models/object"
 import { BaseSchema, FloorSchema, RunSchema, TileObjectSchema, TileSchema } from "../models/schemas"
 
@@ -21,6 +22,25 @@ export interface Tile extends BaseSchema, TileSchema {
 }
 
 export interface TileObject extends BaseSchema, TileObjectSchema {}
+
+export interface RunChoice {
+    tile_id: string | null
+    options: AnyRunOption[]
+}
+export interface RunOption {
+    title: string | null
+    texture: string | null
+    description: string | null
+    rarity: Rarity
+    type: RunOptionType
+}
+
+export type AnyRunOption = LootRunOption // | other option types in the future
+
+export interface LootRunOption extends RunOption {
+    loot_type: LootType
+    count: number
+}
 
 export const TERRAIN_OBJECTS: { [object_id: string]: Partial<RenderObject> } = {
     gold_ore: {

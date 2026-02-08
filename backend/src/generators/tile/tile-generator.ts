@@ -20,11 +20,11 @@ const tileWeights = {
 
 const tileObjectWeights = {
     [TileObjectType.EXIT]: 1,
-    [TileObjectType.CHEST]: 1,
+    [TileObjectType.CHEST]: 20,
 }
 
 export class TileGenerator {
-    static async generateTiles({
+    static async generateFloorTiles({
         user,
         run,
         floor,
@@ -39,21 +39,11 @@ export class TileGenerator {
         const exitTileX = Math.floor(Math.random() * floorWidth)
         const exitTileY = Math.floor(Math.random() * floorHeight)
 
-        const tileObjectPromises: Promise<TileObject>[] = []
         const tiles: Promise<Tile>[] = []
         for (let x = 0; x < floorWidth; x++) {
             for (let y = 0; y < floorHeight; y++) {
                 if (x === exitTileX && y === exitTileY) {
-                    tiles.push(
-                        TileDao.createTile({
-                            run_id: run.id,
-                            floor_id: floor.id,
-                            x,
-                            y,
-                            tile_type: TileType.OBJECT,
-                            hidden: true,
-                        }).then((tileSchema) => Tile.createFromSchema(tileSchema))
-                    )
+                    tiles.push(TileGenerator.generateExitTile({ run, floor, x, y }))
                     continue
                 }
 
@@ -116,7 +106,7 @@ export class TileGenerator {
         return tile
     }
 
-    static async generateExitTIle({
+    static async generateExitTile({
         run,
         floor,
         x,
@@ -150,11 +140,12 @@ export class TileGenerator {
         if (!tileObject) return null
         switch (tileObject.tile_object_type) {
             case TileObjectType.CHEST:
-                return Chest.fromModel(tileObject)
+                return Chest.fromModel(tileObject as Chest)
             case TileObjectType.EXIT:
-                return Exit.fromModel(tileObject)
+                return Exit.fromModel(tileObject as Exit)
             default:
-                return TileObject.fromModel(tileObject)
+                console.error("Unknown tile object type:", tileObject.tile_object_type)
+                return null
         }
     }
 }

@@ -15,22 +15,20 @@ export class Tile implements BaseSchema, TileSchema {
     type: string
     hidden: boolean
     tile_type: TileType
-    tile_object_id: string | null
 
     tile_object: TileObject | null
 
-    private constructor(schema: Tile) {
-        this.id = schema.id
-        this.created_at = schema.created_at
-        this.run_id = schema.run_id
-        this.floor_id = schema.floor_id
-        this.x = schema.x
-        this.y = schema.y
-        this.type = schema.type
-        this.hidden = schema.hidden
-        this.tile_type = schema.tile_type
-        this.tile_object_id = schema.tile_object_id
-        this.tile_object = schema.tile_object
+    constructor(model: BaseSchema & TileSchema & { tile_object: TileObject | null }) {
+        this.id = model.id
+        this.created_at = model.created_at
+        this.run_id = model.run_id
+        this.floor_id = model.floor_id
+        this.x = model.x
+        this.y = model.y
+        this.type = model.type
+        this.hidden = model.hidden
+        this.tile_type = model.tile_type
+        this.tile_object = model.tile_object
     }
 
     async sync(): Promise<void> {
@@ -39,6 +37,9 @@ export class Tile implements BaseSchema, TileSchema {
 
     static async loadById(id: string): Promise<Tile> {
         const tile = await TileDao.getTileById(id)
+        if (!tile) {
+            throw new Error(`Tile with ID ${id} not found.`)
+        }
         return new Tile(tile)
     }
 

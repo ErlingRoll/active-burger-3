@@ -21,12 +21,12 @@ const HomeScreen = () => {
                     className="ml-32 mb-48 bg-primary text-light px-8 pt-3 pb-4 rounded text-3xl font-bold hover:scale-105"
                     onClick={startRun}
                 >
-                    Start Run
+                    Enter Dungeon
                 </button>
             </div>
 
             <img
-                className="ml-32 h-[40vh]"
+                className="ml-32 h-[24vh]"
                 src={textures[`/src/assets/textures/character/${partyLeader.texture}.png`]}
                 alt="character"
             />

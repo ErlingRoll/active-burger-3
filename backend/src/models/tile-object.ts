@@ -1,11 +1,10 @@
+import { TileObjectDao } from "../database/tile-object-dao.js"
 import { BaseSchema, TileObjectSchema } from "../database/types/schemas.js"
 import { Rarity, TileObjectType } from "./constants.js"
 import { Run } from "./run.js"
 import { User } from "./user.js"
 
-export interface TileObjectInterface extends BaseSchema, TileObjectSchema {}
-
-export class TileObject implements TileObjectInterface {
+export class TileObject implements BaseSchema, TileObjectSchema {
     id: string
     created_at: string
     tile_id: string
@@ -17,7 +16,18 @@ export class TileObject implements TileObjectInterface {
     max_hp?: number | null
     damage?: number | null
 
-    protected constructor(tileObject: TileObjectInterface) {
+    constructor(tileObject: {
+        id: string
+        created_at: string
+        tile_id: string
+        tile_object_type: TileObjectType
+        rarity: Rarity
+        texture: string
+        name: string
+        hp?: number | null
+        max_hp?: number | null
+        damage?: number | null
+    }) {
         this.id = tileObject.id
         this.created_at = tileObject.created_at
         this.tile_id = tileObject.tile_id
@@ -43,6 +53,10 @@ export class TileObject implements TileObjectInterface {
 
     async sync(): Promise<void> {
         throw new Error("Method not implemented.")
+    }
+
+    async delete(): Promise<void> {
+        await TileObjectDao.deleteById(this.id)
     }
 
     async activate({ user, activeRun }: { user: User; activeRun: Run }): Promise<void> {

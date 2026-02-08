@@ -13,8 +13,11 @@ export enum GameEvent {
     LOG_USER_ERROR = "log_user_error",
     LOG_SERVER_ERROR = "log_server_error",
     RUN_UPDATED = "run_updated",
+    RUN_STATS_UPDATED = "run_stats_updated",
     RUN_ENDED = "run_ended",
     TILE_UPDATED = "tile_updated",
+    LOOT_DROPPED = "loot_dropped",
+    RUN_CHOICE = "run_choice",
 }
 
 export type ServerMessage = {
@@ -28,6 +31,7 @@ export enum UserAction {
     START_RUN = "start_run",
     END_RUN = "end_run",
     ACTIVATE_TILE = "activate_tile",
+    SELECT_RUN_OPTION = "select_run_option",
 }
 
 export type ClientMessage = {

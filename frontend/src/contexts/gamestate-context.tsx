@@ -6,7 +6,7 @@ import { Terrain } from "../models/terrain"
 import { toast } from "react-toastify"
 import { Item } from "../models/item"
 import { Realm, realmBackground, RealmSettings } from "../game/world"
-import { Run, Tile, User } from "../game/objects"
+import { Floor, Run, RunChoice, Tile, User } from "../game/objects"
 
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
@@ -46,6 +46,12 @@ type GamestateContextType = {
     setUser: Dispatch<SetStateAction<User | null>>
     run: Run | null
     setRun: Dispatch<SetStateAction<Run | null>>
+    floors: Floor[]
+    setFloors: Dispatch<SetStateAction<Floor[]>>
+    runStats: Omit<Run, "floors"> | null
+    setRunStats: Dispatch<SetStateAction<Omit<Run, "floors"> | null>>
+    runChoices: RunChoice[]
+    setRunChoices: Dispatch<SetStateAction<RunChoice[]>>
 }
 
 export const GamestateContext = createContext<GamestateContextType>({
@@ -68,6 +74,12 @@ export const GamestateContext = createContext<GamestateContextType>({
     setUser: (user: any) => {},
     run: null,
     setRun: (run: any) => {},
+    floors: [],
+    setFloors: (floors: any) => {},
+    runStats: null,
+    setRunStats: (stats: any) => {},
+    runChoices: [],
+    setRunChoices: (choices: any) => {},
 })
 
 export const GameProvider = ({ children }: { children: any }) => {
@@ -88,7 +100,13 @@ export const GameProvider = ({ children }: { children: any }) => {
     const { externalUser, setExternalUser } = useContext(UserContext)
     const { character, setCharacter } = useContext(CharacterContext)
     const [user, setUser] = React.useState<User | null>(null)
+
+    const [runChoices, setRunChoices] = React.useState<RunChoice[]>([]) // Stack of run choices, newest first
+
+    // Run state
     const [run, setRun] = React.useState<Run | null>(null)
+    const [runStats, setRunStats] = React.useState<Omit<Run, "floors"> | null>(null)
+    const [floors, setFloors] = React.useState<Floor[]>([])
 
     useEffect(() => {
         if (!realm) return
@@ -119,7 +137,7 @@ export const GameProvider = ({ children }: { children: any }) => {
         const items: Item[] = payload.items
         const toast_component = (
             <div className="flex flex-col items-start gap-1">
-                <p className="font-bold mb-1">Loot Dropped!</p>
+                <p className="font-bold mb-1">Looted!</p>
                 {items.map((item, index: number) => (
                     <div key={index} className="flex items-center">
                         <p className="mr-2">
@@ -142,6 +160,8 @@ export const GameProvider = ({ children }: { children: any }) => {
     function on_event(event: string, payload: any, log: string[] | null) {
         if (log) setLog((prevLog) => [...log, ...prevLog])
 
+        console.log("Received event:", event, payload)
+
         switch (event) {
             case "login_success":
                 on_login_success(payload)
@@ -149,14 +169,29 @@ export const GameProvider = ({ children }: { children: any }) => {
             case "log_user_error":
                 toast.error(payload.message)
                 break
+            case "run_choice_created":
+                setRunChoices((prev) => [payload.run_choice, ...prev])
+                break
             case "run_updated":
                 setRun(payload.run)
+                break
+            case "run_floors_updated":
+                setRun(payload.floors)
+                break
+            case "run_stats_updated":
+                setRunStats((prev) => ({ ...prev, ...payload.run_stats }))
                 break
             case "run_ended":
                 setRun(null)
                 break
             case "tile_updated":
                 updateTile(payload.tile)
+                break
+            case "run_choice":
+                setRunChoices((prev) => [payload.runChoice, ...prev])
+                break
+            case "loot_dropped":
+                notifyLoot(payload)
                 break
             case "log":
                 break
@@ -295,6 +330,12 @@ export const GameProvider = ({ children }: { children: any }) => {
                 setUser,
                 run,
                 setRun,
+                floors,
+                setFloors,
+                runStats,
+                setRunStats,
+                runChoices,
+                setRunChoices,
             }}
         >
             {children}

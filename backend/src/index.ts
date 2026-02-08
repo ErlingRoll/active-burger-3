@@ -34,4 +34,4 @@ wss.on("connection", async (ws) => {
 const HEARTBEAT_MS = 30_000
 setInterval(() => hub.heartbeat(), HEARTBEAT_MS)
 
-console.log(`WebSocket server listening on ws://localhost:${PORT}`)
+console.info(`WebSocket server listening on ws://localhost:${PORT}`)

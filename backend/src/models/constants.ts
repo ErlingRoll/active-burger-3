@@ -9,5 +9,4 @@ export enum Rarity {
 export enum TileObjectType {
     CHEST = "chest",
     EXIT = "exit",
-    MONSTER = "monster",
 }
