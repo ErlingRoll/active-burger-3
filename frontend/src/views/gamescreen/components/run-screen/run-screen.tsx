@@ -56,7 +56,6 @@ const RunScreen = () => {
             Object.keys(tiles).forEach((pos) => {
                 newTiles[pos] = { ...tiles[pos], tile_type: TileType.LOADING }
             })
-            console.log("Activating exit, setting tiles to loading")
             setTiles(newTiles)
         }
 

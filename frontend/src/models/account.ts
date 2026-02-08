@@ -11,6 +11,7 @@ export interface UserSchema {
     discord_id: string
     discord_avatar: string
     admin: boolean
+    essence: number
     characters: CharacterSchema[]
 }
 

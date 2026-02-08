@@ -8,7 +8,7 @@ import Settings from "./views/components/settings"
 function App() {
     return (
         <CompoundProvider>
-            <Fragment>
+            <div className="text-light">
                 <Game />
                 <Settings />
                 <div className="absolute top-0 left-0 hidden">
@@ -18,7 +18,7 @@ function App() {
                     <p className="bg-epic border-epic text-epic">Epic</p>
                     <p className="bg-legendary border-legendary text-legendary">Legendary</p>
                 </div>
-            </Fragment>
+            </div>
         </CompoundProvider>
     )
 }
