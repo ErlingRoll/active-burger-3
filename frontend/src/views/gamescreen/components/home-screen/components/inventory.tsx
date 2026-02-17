@@ -37,6 +37,7 @@ const Inventory = () => {
                         </div>
                     </Fragment>
                 ))}
+                {items.length === 0 && <div className="col-span-8 h-16 center-col italic">Inventory is empty</div>}
             </div>
         </div>
     )

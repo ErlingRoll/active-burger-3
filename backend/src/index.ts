@@ -1,3 +1,4 @@
+import "./utils/logging-utils.js"
 import { WebSocketServer } from "ws"
 import { GameHub } from "./hub/game-hub.js"
 import { createClient } from "@supabase/supabase-js"

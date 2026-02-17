@@ -5,7 +5,7 @@ import { ClassProps } from "../utils/type-utils.js"
 import { CharacterSchema } from "./types/schemas.js"
 
 export class CharacterDao {
-    static async createCharacter(character: Partial<CharacterSchema>): Promise<CharacterSchema | null> {
+    static async createCharacter(character: Partial<CharacterSchema>): Promise<Character | null> {
         const res = await database
             .from("character")
             .insert(character as CharacterSchema)
@@ -15,7 +15,7 @@ export class CharacterDao {
             console.error(res.error.message)
         }
 
-        return res.data ? (res.data[0] as unknown as CharacterSchema) : null
+        return res.data ? new Character(res.data[0] as ClassProps<Character>) : null
     }
 
     static async getCharactersByUserId(userId: string): Promise<CharacterSchema[]> {
@@ -39,7 +39,12 @@ export class CharacterDao {
         user_id: string
         game_id: CharacterName
     }): Promise<Character | null> {
-        const res = await database.from("character").select("*").eq("user_id", user_id).eq("game_id", game_id).single()
+        const res = await database
+            .from("character")
+            .select("*")
+            .eq("user_id", user_id)
+            .eq("game_id", game_id)
+            .maybeSingle()
 
         if (res.error) {
             console.error(res.error.message)

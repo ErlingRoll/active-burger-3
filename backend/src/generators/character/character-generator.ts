@@ -5,6 +5,7 @@ import { CharacterName } from "../../models/constants.js"
 
 export const characterRarityTable = {
     [CharacterName.CLYDE]: 1,
+    [CharacterName.LYERA]: 5,
 }
 
 export const clyde: Partial<CharacterSchema> = {
@@ -20,8 +21,22 @@ export const clyde: Partial<CharacterSchema> = {
     cooldown: 3,
 }
 
+export const lyera: Partial<CharacterSchema> = {
+    name: "Lyera",
+    game_id: CharacterName.LYERA,
+    texture: "lyera",
+    hp: 8,
+    hp_regen: 1,
+    damage: 2,
+    mana: 15,
+    mana_regen: 2,
+    mana_cost: 10,
+    cooldown: 5,
+}
+
 export const characters: { [key: string]: Partial<CharacterSchema> } = {
     [CharacterName.CLYDE]: clyde,
+    [CharacterName.LYERA]: lyera,
 }
 
 export class CharacterGenerator {
@@ -65,6 +80,6 @@ export class CharacterGenerator {
             return null
         }
 
-        return Character.loadBySchema(createdCharacter)
+        return createdCharacter
     }
 }

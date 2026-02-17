@@ -45,10 +45,23 @@ export class ItemActions {
 
         const character = await CharacterDao.getUserCharacterByGameId({ user_id: user.id, game_id: characterName })
 
+        const partyPosition = user.characters.length
+
         if (!character) {
-            await CharacterGenerator.generateCharacter({
+            const newCharacter = await CharacterGenerator.generateCharacter({
                 userId: user.id,
                 name: characterName,
+                override: {
+                    party_position: partyPosition < User.PARTY_SIZE ? partyPosition : undefined,
+                },
+            })
+
+            user.characters.push(newCharacter!)
+            hub.sendToUser(user.id, {
+                event: GameEvent.CHARACTER_UPDATED,
+                payload: {
+                    character: newCharacter,
+                },
             })
         } else {
             character.gainExperience(1) // Default for soul shards. In future, we can have different shard types that grant different exp amounts.

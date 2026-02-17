@@ -21,6 +21,13 @@ export const CharactersProvider = ({ children }: { children: any }) => {
             if (!prevCharacters) {
                 return [updatedCharacter]
             }
+
+            const characterIndex = prevCharacters.findIndex((c) => c.id === updatedCharacter.id)
+            if (characterIndex === -1) {
+                return [...prevCharacters, updatedCharacter]
+            }
+
+            // Character found, update it in the list
             return prevCharacters.map((character) =>
                 character.id === updatedCharacter.id ? updatedCharacter : character
             )

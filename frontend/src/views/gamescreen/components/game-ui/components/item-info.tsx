@@ -1,5 +1,4 @@
-import { useContext, useEffect, useState } from "react"
-import { CharactersContext } from "../../../../../contexts/characters-context"
+import { useEffect, useState } from "react"
 import { RiCopperCoinFill } from "react-icons/ri"
 import { Item } from "../../../../../game/objects"
 
@@ -94,6 +93,15 @@ const ItemInfo = ({ itemId, item, showImg, onImgClick }: ItemInfoProps) => {
                 <RiCopperCoinFill color="gold" className="" />
                 <p className="font-bold text-lg">{_item.value}</p>
             </div>
+            {_item.character_shard && (
+                <div className="w-full flex flex-col items-center">
+                    <img
+                        src={textures[`/src/assets/textures/character/${_item.character_shard}.png`]}
+                        alt="character shard"
+                        className="h-32"
+                    />
+                </div>
+            )}
             {/* {_item.equipable && (
                 <div className="w-fit center-col items-start! mt-1">
                     {baseMods && Object.keys(baseMods).length ? (

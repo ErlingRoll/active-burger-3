@@ -29,4 +29,5 @@ export enum LootType {
 
 export enum CharacterName {
     CLYDE = "clyde",
+    LYERA = "lyera",
 }

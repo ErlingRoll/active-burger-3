@@ -59,14 +59,14 @@ const Characters = () => {
                     </div>
                 )}
                 {characters[1] ? (
-                    <Character character={characters[0]} />
+                    <Character character={characters[1]} />
                 ) : (
                     <div className="h-[24vh] flex items-center justify-center bg-[rgba(0,0,0,0.8)] rounded">
                         <p className="italic text-gray-400">Empty slot</p>
                     </div>
                 )}
-                {characters[1] ? (
-                    <Character character={characters[0]} />
+                {characters[2] ? (
+                    <Character character={characters[2]} />
                 ) : (
                     <div className="h-[24vh] flex items-center justify-center bg-[rgba(0,0,0,0.8)] rounded">
                         <p className="italic text-gray-400">Empty slot</p>

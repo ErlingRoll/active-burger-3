@@ -150,7 +150,7 @@ export const GameProvider = ({ children }: { children: any }) => {
                         </p>
                         <div className="h-8 w-8 center-col mr-1">
                             <img
-                                src={textures[`/src/assets/textures/${item.texture}.png`]}
+                                src={textures[`/src/assets/textures/${item.texture}.webp`]}
                                 className="h-full object-fit"
                             />
                         </div>
