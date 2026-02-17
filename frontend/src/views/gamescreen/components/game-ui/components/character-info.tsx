@@ -1,5 +1,5 @@
 import { useContext, useState } from "react"
-import { CharacterContext } from "../../../../../contexts/character-context"
+import { CharactersContext } from "../../../../../contexts/characters-context"
 import { UserContext } from "../../../../../contexts/user-context"
 import { GamestateContext } from "../../../../../contexts/gamestate-context"
 import { FaHeart } from "react-icons/fa"
@@ -8,7 +8,7 @@ import { RiCopperCoinFill } from "react-icons/ri"
 const CharacterInfo = () => {
     const { gamestate } = useContext(GamestateContext)
     const { admin } = useContext(UserContext)
-    const { character } = useContext(CharacterContext)
+    const { characters: character } = useContext(CharactersContext)
 
     const [debug, setDebug] = useState<boolean>(false)
 

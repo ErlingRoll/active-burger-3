@@ -1,8 +1,7 @@
 import { useContext, useEffect, useState } from "react"
-import { Equipment, Item } from "../../../../../models/item"
-import { CharacterContext } from "../../../../../contexts/character-context"
+import { CharactersContext } from "../../../../../contexts/characters-context"
 import { RiCopperCoinFill } from "react-icons/ri"
-import { getModTier } from "../../../../../game/items/mods"
+import { Item } from "../../../../../game/objects"
 
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
@@ -20,45 +19,45 @@ const ItemInfo = ({ itemId, item, showImg, onImgClick }: ItemInfoProps) => {
     const [prefix, setPrefix] = useState<string | null>(null)
     const [suffix, setSuffix] = useState<string | null>(null)
 
-    const { items, itemMap } = useContext(CharacterContext)
+    // const { items, itemMap } = useContext(CharacterContext)
 
-    function includesAny(text, substrings) {
-        for (let i = 0; i < substrings.length; i++) {
-            if (text.includes(substrings[i])) {
-                return true // Found a match
-            }
-        }
-        return false // No match found
-    }
+    // function includesAny(text, substrings) {
+    //     for (let i = 0; i < substrings.length; i++) {
+    //         if (text.includes(substrings[i])) {
+    //             return true // Found a match
+    //         }
+    //     }
+    //     return false // No match found
+    // }
+
+    // useEffect(() => {
+    //     if (!_item) return
+    //     const baseMods = {}
+    //     Object.entries(_item.base_mods || {})
+    //         .sort(([a], [b]) => a.localeCompare(b))
+    //         .forEach(([key, value]) => {
+    //             baseMods[key] = (baseMods[key] || 0) + value
+    //         })
+    //     const mods = {}
+    //     Object.entries(_item.mods || {})
+    //         .sort(([a], [b]) => a.localeCompare(b))
+    //         .forEach(([key, value]) => {
+    //             mods[key] = (mods[key] || 0) + value
+    //         })
+    //     setBaseMods(baseMods)
+    //     setMods(mods)
+    //     if (_item.props == null) return
+    //     setPrefix(_item.props["prefix"] || null)
+    //     setSuffix(_item.props["suffix"] || null)
+    // }, [_item])
 
     useEffect(() => {
-        if (!_item) return
-        const baseMods = {}
-        Object.entries(_item.base_mods || {})
-            .sort(([a], [b]) => a.localeCompare(b))
-            .forEach(([key, value]) => {
-                baseMods[key] = (baseMods[key] || 0) + value
-            })
-        const mods = {}
-        Object.entries(_item.mods || {})
-            .sort(([a], [b]) => a.localeCompare(b))
-            .forEach(([key, value]) => {
-                mods[key] = (mods[key] || 0) + value
-            })
-        setBaseMods(baseMods)
-        setMods(mods)
-        if (_item.props == null) return
-        setPrefix(_item.props["prefix"] || null)
-        setSuffix(_item.props["suffix"] || null)
-    }, [_item])
-
-    useEffect(() => {
-        if (itemId && itemMap) {
-            const inventoryItem = itemMap[itemId]
-            if (inventoryItem) return setItem(inventoryItem)
-        }
+        // if (itemId && itemMap) {
+        //     const inventoryItem = itemMap[itemId]
+        //     if (inventoryItem) return setItem(inventoryItem)
+        // }
         if (item) return setItem(item)
-    }, [itemId, item, items])
+    }, [itemId, item])
 
     if (!_item) {
         return <div>Loading item...</div>
@@ -74,7 +73,7 @@ const ItemInfo = ({ itemId, item, showImg, onImgClick }: ItemInfoProps) => {
                         onClick={() => onImgClick && onImgClick()}
                     >
                         <img
-                            src={textures[`/src/assets/textures/${_item.texture}.png`]}
+                            src={textures[`/src/assets/textures/${_item.texture}.webp`]}
                             alt={_item.name}
                             className="h-full"
                         />
@@ -95,7 +94,7 @@ const ItemInfo = ({ itemId, item, showImg, onImgClick }: ItemInfoProps) => {
                 <RiCopperCoinFill color="gold" className="" />
                 <p className="font-bold text-lg">{_item.value}</p>
             </div>
-            {_item.equipable && (
+            {/* {_item.equipable && (
                 <div className="w-fit center-col items-start! mt-1">
                     {baseMods && Object.keys(baseMods).length ? (
                         <div className="text-gray-300">
@@ -138,7 +137,7 @@ const ItemInfo = ({ itemId, item, showImg, onImgClick }: ItemInfoProps) => {
                         </div>
                     )}
                 </div>
-            )}
+            )} */}
             {_item.description && <p className="text-sm mt-2">{_item.description}</p>}
         </div>
     )

@@ -1,5 +1,5 @@
 import { Fragment, useContext } from "react"
-import { CharacterContext } from "../../../../../contexts/character-context"
+import { CharactersContext } from "../../../../../contexts/characters-context"
 import { UserContext } from "../../../../../contexts/user-context"
 import { GamestateContext } from "../../../../../contexts/gamestate-context"
 import { UIContext } from "../../../../../contexts/ui-context"

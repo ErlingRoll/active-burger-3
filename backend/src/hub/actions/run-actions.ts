@@ -16,6 +16,11 @@ export class RunActions {
         const user = hub.getUserByClientId(clientId)
         const run = await RunGenerator.startRun(user)
 
+        if (!run) {
+            hub.sendClientError(clientId, "Failed to start run.")
+            return
+        }
+
         hub.sendToClient(clientId, {
             event: GameEvent.RUN_UPDATED,
             payload: {

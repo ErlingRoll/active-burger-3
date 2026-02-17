@@ -1,5 +1,5 @@
 import { Fragment, useContext, useMemo, useState } from "react"
-import { CharacterContext } from "../../../../../contexts/character-context"
+import { CharactersContext } from "../../../../../contexts/characters-context"
 import { RiCopperCoinFill } from "react-icons/ri"
 import { UIContext } from "../../../../../contexts/ui-context"
 import { PlayerContext } from "../../../../../contexts/player-context"
@@ -14,7 +14,7 @@ const Shop = () => {
     const [tab, setTab] = useState<number>(0)
 
     const { gameActions } = useContext(PlayerContext)
-    const { items } = useContext(CharacterContext)
+    const { items } = useContext(CharactersContext)
     const { setShopOpen, shopItems } = useContext(UIContext)
 
     const tabName = useMemo(() => {

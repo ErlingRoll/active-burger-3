@@ -5,6 +5,7 @@ import { hub } from "../index.js"
 import { ClassProps } from "../utils/type-utils.js"
 import { Floor } from "./floor.js"
 
+// Gold standard
 export class Run implements BaseSchema, RunSchema {
     id: string
     created_at: string

@@ -67,7 +67,7 @@ const Login = () => {
         <div id="login" className="relative">
             <img src={loginBackground} alt="background" className="absolute w-screen h-screen object-cover -z-10" />
             <div className="flex flex-col justify-center items-center h-screen gap-12 pb-24">
-                {/* <img src={loginLogo} alt="title" className="main-logo w-[24rem]" /> */}
+                <img src={loginLogo} alt="title" className="main-logo w-[24rem]" />
                 <div className="bg-white/70 px-24 py-8 flex flex-col items-center justify-center rounded-lg">
                     {loading || code || user ? (
                         <div className="relative flex flex-col justify-center items-center">

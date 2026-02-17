@@ -1,5 +1,5 @@
 import { RunOption, Tile } from "../game/objects"
-import { Realm } from "../game/world"
+import { UserAction } from "./server-types"
 
 class GameActions {
     user = null
@@ -33,7 +33,7 @@ class GameActions {
 
     startRun() {
         const action = {
-            action: "start_run",
+            action: UserAction.START_RUN,
             payload: {},
         }
         this.send(action)
@@ -41,7 +41,7 @@ class GameActions {
 
     endRun() {
         const action = {
-            action: "end_run",
+            action: UserAction.END_RUN,
             payload: {},
         }
         this.send(action)
@@ -49,7 +49,7 @@ class GameActions {
 
     activateTile(tile: Tile) {
         const action = {
-            action: "activate_tile",
+            action: UserAction.ACTIVATE_TILE,
             payload: { tile },
         }
         this.send(action)
@@ -57,35 +57,19 @@ class GameActions {
 
     selectRunOption(payload: { tile_id: string; option: RunOption }) {
         const action = {
-            action: "select_run_option",
+            action: UserAction.SELECT_RUN_OPTION,
             payload,
         }
         this.send(action)
     }
 
-    // getCharacter({ character_id }: { character_id: string }) {
-    //     const action = {
-    //         action: "get_character",
-    //         payload: { character_id },
-    //     }
-    //     this.send(action)
-    // }
-
-    // move({ x, y, direction }: { x: number; y: number; direction: string }) {
-    //     const action = {
-    //         action: "move",
-    //         payload: { x, y, direction },
-    //     }
-    //     this.send(action)
-    // }
-
-    // respawn() {
-    //     const action = {
-    //         action: "respawn",
-    //         payload: {},
-    //     }
-    //     this.send(action)
-    // }
+    useItem(itemId: string) {
+        const action = {
+            action: UserAction.USE_ITEM,
+            payload: { item_id: itemId },
+        }
+        this.send(action)
+    }
 }
 
 export default GameActions

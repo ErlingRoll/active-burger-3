@@ -1,3 +1,7 @@
+export enum RunOptionType {
+    LOOT = "loot",
+}
+
 export enum Rarity {
     COMMON = "common",
     RARE = "rare",
@@ -9,4 +13,20 @@ export enum Rarity {
 export enum TileObjectType {
     CHEST = "chest",
     EXIT = "exit",
+}
+
+export enum ItemType {
+    SOUL_SHARD = "soul_shard",
+    WEAPON = "weapon",
+    ARMOR = "armor",
+}
+
+export enum LootType {
+    GOLD = "gold",
+    ESSENCE = "essence",
+    ITEM = "item",
+}
+
+export enum CharacterName {
+    CLYDE = "clyde",
 }

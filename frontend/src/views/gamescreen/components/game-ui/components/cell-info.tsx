@@ -1,5 +1,5 @@
 import { Fragment, useContext, useEffect, useState } from "react"
-import { CharacterContext } from "../../../../../contexts/character-context"
+import { CharactersContext } from "../../../../../contexts/characters-context"
 import { UserContext } from "../../../../../contexts/user-context"
 import { GamestateContext } from "../../../../../contexts/gamestate-context"
 import { Character, Entity, RenderObject } from "../../../../../models/object"
@@ -9,7 +9,7 @@ import { modSymbol } from "../../../../../game/items/mods"
 const CellInfo = ({ pos }: { pos: { x: number; y: number } | null }) => {
     const { gamestate } = useContext(GamestateContext)
     const { admin } = useContext(UserContext)
-    const { character } = useContext(CharacterContext)
+    const { characters: character } = useContext(CharactersContext)
 
     const [debug, setDebug] = useState<boolean>(false)
     const [objects, setObjects] = useState<Partial<RenderObject & Character & Entity>[]>([])

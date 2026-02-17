@@ -15,7 +15,7 @@ import { Exit } from "../../models/exit.js"
 
 const tileWeights = {
     [TileType.EMPTY]: 50,
-    [TileType.OBJECT]: 20,
+    [TileType.OBJECT]: 50,
 }
 
 const tileObjectWeights = {

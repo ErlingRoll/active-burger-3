@@ -1,5 +1,5 @@
 import { Fragment, useContext } from "react"
-import { CharacterContext } from "../../../../../contexts/character-context"
+import { CharactersContext } from "../../../../../contexts/characters-context"
 import ItemTooltip from "./item-tooltip"
 import { PlayerContext } from "../../../../../contexts/player-context"
 
@@ -7,7 +7,7 @@ const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eage
 
 const Equipment = () => {
     const { gameActions } = useContext(PlayerContext)
-    const { equipment } = useContext(CharacterContext)
+    const { equipment } = useContext(CharactersContext)
 
     return (
         <div id="equipment" className="p-4 bg-dark/90 text-light rounded pointer-events-auto">

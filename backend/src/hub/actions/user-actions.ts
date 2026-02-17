@@ -1,3 +1,4 @@
+import { ItemDao } from "../../database/item-dao.js"
 import { hub } from "../../index.js"
 import { Run } from "../../models/run.js"
 import { UserService } from "../../services/user-service.js"
@@ -30,12 +31,20 @@ export class UserActions {
         })
 
         if (activeRun) {
-            hub.sendToUser(user.id, {
+            hub.sendToClient(clientId, {
                 event: GameEvent.RUN_STATS_UPDATED,
                 payload: {
                     run_stats: activeRun.getStats(),
                 },
             })
         }
+
+        const items = await ItemDao.getItemsByUserId(user.id)
+        hub.sendToClient(clientId, {
+            event: GameEvent.ITEMS_UPDATED,
+            payload: {
+                items: items,
+            },
+        })
     }
 }

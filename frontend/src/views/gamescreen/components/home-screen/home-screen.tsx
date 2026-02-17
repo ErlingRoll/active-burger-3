@@ -2,54 +2,18 @@ import { useContext, useState } from "react"
 import { PlayerContext } from "../../../../contexts/player-context"
 import { GamestateContext } from "../../../../contexts/gamestate-context"
 import baseBackground from "../../../../assets/textures/background/base.webp"
-import { RiCopperCoinFill } from "react-icons/ri"
-import { FaDroplet, FaFireFlameCurved, FaHeart } from "react-icons/fa6"
-import { Character } from "../../../../game/objects"
-import { LuSwords } from "react-icons/lu"
-import { PiSwordBold } from "react-icons/pi"
+import { FaFireFlameCurved } from "react-icons/fa6"
+import Inventory from "./components/inventory"
+import Characters from "./components/characters"
 
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
 const HomeScreen = () => {
-    const { user } = useContext(GamestateContext)
+    const { user, items } = useContext(GamestateContext)
     const { gameActions } = useContext(PlayerContext)
-
-    const [characters, setCharacters] = useState<Character[]>(user.characters)
 
     function startRun() {
         gameActions.startRun()
-    }
-
-    const Character = ({ character }: { character: Character }) => {
-        return (
-            <div className="flex flex-row gap-4 bg-[rgba(0,0,0,0.8)] p-2">
-                <div className="flex flex-col items-center gap-2">
-                    <h3 className="text-xl font-bold pl-2">
-                        {character.name} <span className="text-sm">Lvl {character.level}</span>
-                    </h3>
-                    <img
-                        className="h-[20vh]"
-                        src={textures[`/src/assets/textures/character/${character.texture}.png`]}
-                        alt="character"
-                    />
-                </div>
-                <div className="flex flex-col gap-2 font-bold">
-                    <p className="text-xl font-bold text-transparent">{character.name}</p>
-                    <div className="flex flex-row items-center gap-1">
-                        <FaHeart color="red" className="mt-[1px]" />
-                        <p>{character.hp}</p>
-                    </div>
-                    <div className="flex flex-row gap-1">
-                        <FaDroplet color="blue" className="mt-[4px]" />
-                        <p>{character.mana}</p>
-                    </div>
-                    <div className="flex flex-row items-center gap-1">
-                        <PiSwordBold color="gray" className="mt-[1px]" />
-                        <p>{character.damage}</p>
-                    </div>
-                </div>
-            </div>
-        )
     }
 
     return (
@@ -72,32 +36,9 @@ const HomeScreen = () => {
                 </div>
             </div>
 
-            <div className="absolute top-0 left-0 m-4 flex flex-col gap-4 text-lg rounded p-4">
-                <h2 className="text-2xl font-bold">Party</h2>
-                <div className="w-full bg-light rounded h-[3px]" />
-                <div className="flex flex-col gap-4">
-                    {characters[0] ? (
-                        <Character character={characters[0]} />
-                    ) : (
-                        <div className="h-[24vh] flex items-center justify-center bg-[rgba(0,0,0,0.8)] rounded">
-                            <p className="italic text-gray-400">Empty slot</p>
-                        </div>
-                    )}
-                    {characters[1] ? (
-                        <Character character={characters[0]} />
-                    ) : (
-                        <div className="h-[24vh] flex items-center justify-center bg-[rgba(0,0,0,0.8)] rounded">
-                            <p className="italic text-gray-400">Empty slot</p>
-                        </div>
-                    )}
-                    {characters[1] ? (
-                        <Character character={characters[0]} />
-                    ) : (
-                        <div className="h-[24vh] flex items-center justify-center bg-[rgba(0,0,0,0.8)] rounded">
-                            <p className="italic text-gray-400">Empty slot</p>
-                        </div>
-                    )}
-                </div>
+            <div className="absolute top-0 left-0 m-4 flex flex-row gap-4 pointer-events-none">
+                <Characters />
+                <Inventory />
             </div>
         </div>
     )

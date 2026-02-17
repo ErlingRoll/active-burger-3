@@ -6,7 +6,7 @@
     "main": "dist/index.js",
     "scripts": {
         "build": "tsc -p tsconfig.json",
-        "start": "node dist/index.js",
+        "start": "tsc -p tsconfig.json &&node dist/index.js",
         "dev": "concurrently -k \"npm:dev:build\" \"npm:dev:serve\"",
         "dev:build": "tsc -p tsconfig.json --watch",
         "dev:serve": "nodemon dist/index.js",

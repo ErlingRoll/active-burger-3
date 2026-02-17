@@ -1,12 +1,12 @@
 import React, { Dispatch, SetStateAction, createContext, useContext, useEffect, useState } from "react"
 import { UserContext } from "./user-context"
 import { RenderObject } from "../models/object"
-import { CharacterContext } from "./character-context"
+import { CharactersContext } from "./characters-context"
 import { Terrain } from "../models/terrain"
 import { toast } from "react-toastify"
-import { Item } from "../models/item"
 import { Realm, realmBackground, RealmSettings } from "../game/world"
-import { Floor, Run, RunChoice, Tile, User } from "../game/objects"
+import { Floor, Item, Run, RunChoice, Tile, User } from "../game/objects"
+import { GameEvent } from "./server-types"
 
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
@@ -44,6 +44,8 @@ type GamestateContextType = {
     realmSettings?: RealmSettings
     user: User | null
     setUser: Dispatch<SetStateAction<User | null>>
+    items: Item[]
+    setItems: Dispatch<SetStateAction<Item[]>>
     run: Run | null
     setRun: Dispatch<SetStateAction<Run | null>>
     floors: Floor[]
@@ -72,6 +74,8 @@ export const GamestateContext = createContext<GamestateContextType>({
     },
     user: null,
     setUser: (user: any) => {},
+    items: [],
+    setItems: (items: any) => {},
     run: null,
     setRun: (run: any) => {},
     floors: [],
@@ -98,8 +102,9 @@ export const GameProvider = ({ children }: { children: any }) => {
     const [connectTimeout, setConnectTimeout] = useState(null)
 
     const { externalUser, setExternalUser } = useContext(UserContext)
-    const { character, setCharacter } = useContext(CharacterContext)
+    const { characters, setCharacters, updateCharacter } = useContext(CharactersContext)
     const [user, setUser] = React.useState<User | null>(null)
+    const [items, setItems] = useState<Item[]>([])
 
     const [runChoices, setRunChoices] = React.useState<RunChoice[]>([]) // Stack of run choices, newest first
 
@@ -128,7 +133,7 @@ export const GameProvider = ({ children }: { children: any }) => {
             setGameCon(null)
         }
         setGamestate(null)
-        setCharacter(null)
+        setCharacters(null)
         setUser(null)
         setExternalUser(null)
     }
@@ -163,37 +168,40 @@ export const GameProvider = ({ children }: { children: any }) => {
         console.log("Received event:", event, payload)
 
         switch (event) {
-            case "login_success":
+            case GameEvent.LOGIN_SUCCESS:
                 on_login_success(payload)
                 break
-            case "log_user_error":
-                toast.error(payload.message)
-                break
-            case "run_choice_created":
-                setRunChoices((prev) => [payload.run_choice, ...prev])
-                break
-            case "run_updated":
+            case GameEvent.RUN_UPDATED:
                 setRun(payload.run)
                 break
-            case "run_floors_updated":
-                setRun(payload.floors)
-                break
-            case "run_stats_updated":
+            case GameEvent.RUN_STATS_UPDATED:
                 setRunStats((prev) => ({ ...prev, ...payload.run_stats }))
                 break
-            case "run_ended":
+            case GameEvent.RUN_ENDED:
                 setRun(null)
                 break
-            case "tile_updated":
-                updateTile(payload.tile)
-                break
-            case "run_choice":
+            case GameEvent.RUN_CHOICE:
                 setRunChoices((prev) => [payload.runChoice, ...prev])
                 break
-            case "loot_dropped":
+            case GameEvent.TILE_UPDATED:
+                updateTile(payload.tile)
+                break
+            case GameEvent.LOOT_DROPPED:
                 notifyLoot(payload)
                 break
-            case "log":
+            case GameEvent.ITEMS_UPDATED:
+                setItems(payload.items)
+                break
+            case GameEvent.CHARACTER_UPDATED:
+                const updatedCharacter = payload.character
+                updateCharacter(updatedCharacter)
+                break
+
+            // Logging events
+            case GameEvent.LOG_USER_ERROR:
+                toast.error(payload.message)
+                break
+            case GameEvent.LOG:
                 break
             default:
                 console.error("Unhandled WebSocket event:", event, payload, log)
@@ -211,15 +219,16 @@ export const GameProvider = ({ children }: { children: any }) => {
         })
     }
 
-    function on_login_success(data: any) {
+    function on_login_success(data: { user: User; run: Run }) {
         const user = data.user
         const run = data.run
+        setCharacters(user.characters)
         setRun(run)
         setUser(user)
     }
 
     useEffect(() => {
-        if (!character || !gameCon) return
+        if (!characters || !gameCon) return
         gameCon.onmessage = (event: any) => {
             const data = event.data
             let parsedData = null
@@ -238,7 +247,7 @@ export const GameProvider = ({ children }: { children: any }) => {
             // Handle events
             on_event(messageEvent, parsedData.payload, parsedData.log)
         }
-    }, [character, gameCon])
+    }, [characters, gameCon])
 
     function tryLogin() {
         const loginInfo = {
@@ -328,6 +337,8 @@ export const GameProvider = ({ children }: { children: any }) => {
                 realmSettings,
                 user,
                 setUser,
+                items,
+                setItems,
                 run,
                 setRun,
                 floors,

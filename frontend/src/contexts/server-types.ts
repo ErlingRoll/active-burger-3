@@ -1,12 +1,3 @@
-import { User } from "../models/user.js"
-
-export type ClientId = string // Websocket client identifier
-export type UserId = string // Discord user identifier
-
-export type HubState = {
-    players: Map<UserId, User>
-}
-
 export enum UserAction {
     LOGIN = "login",
     START_RUN = "start_run",
@@ -18,9 +9,6 @@ export enum UserAction {
 
 export enum GameEvent {
     LOGIN_SUCCESS = "login_success",
-    LOG = "log",
-    LOG_USER_ERROR = "log_user_error",
-    LOG_SERVER_ERROR = "log_server_error",
     ITEMS_UPDATED = "items_updated",
     RUN_UPDATED = "run_updated",
     RUN_STATS_UPDATED = "run_stats_updated",
@@ -29,16 +17,9 @@ export enum GameEvent {
     LOOT_DROPPED = "loot_dropped",
     RUN_CHOICE = "run_choice",
     CHARACTER_UPDATED = "character_updated",
-}
 
-export type ServerMessage = {
-    event: GameEvent
-    payload?: { [key: string]: any }
-    log?: String[]
-}
-
-export type ClientMessage = {
-    userId: UserId
-    action: UserAction
-    payload?: { [key: string]: any }
+    // Logging events
+    LOG = "log",
+    LOG_USER_ERROR = "log_user_error",
+    LOG_SERVER_ERROR = "log_server_error",
 }

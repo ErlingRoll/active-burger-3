@@ -5,8 +5,13 @@ import { User } from "../../models/user.js"
 import { FloorGenerator } from "../floor/floor-generator.js"
 
 export class RunGenerator {
-    static async startRun(user: User): Promise<Run> {
-        const runSchema = await new RunGenerator().generateRun(user)
+    static async startRun(user: User): Promise<Run | null> {
+        const runSchema = await RunGenerator.generateRun(user)
+        if (!runSchema) {
+            console.error("Failed to generate run for user ID " + user.id)
+            return null
+        }
+
         const run = Run.createFromSchema(runSchema)
 
         const firstFloor = await FloorGenerator.generateFloor({ user, run })
@@ -15,7 +20,7 @@ export class RunGenerator {
         return run
     }
 
-    async generateRun(user: User): Promise<RunSchema> {
+    static async generateRun(user: User): Promise<Run | null> {
         const party = user.getParty()
         if (party.length === 0) {
             throw new Error(
@@ -45,6 +50,10 @@ export class RunGenerator {
             party_damage,
         }
 
-        return await RunDao.createRun(run)
+        const newRun = await RunDao.createRun(run)
+        if (!newRun) {
+            console.error("Failed to create run for user ID " + user.id)
+        }
+        return newRun
     }
 }

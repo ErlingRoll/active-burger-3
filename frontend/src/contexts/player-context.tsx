@@ -4,7 +4,7 @@ import { UIContext } from "./ui-context"
 import GameActions from "./game-actions"
 import { UserContext } from "./user-context"
 import { GamestateContext } from "./gamestate-context"
-import { CharacterContext } from "./character-context"
+import { CharactersContext } from "./characters-context"
 import { Realm } from "../game/world"
 import { SettingsContext } from "./settings-context"
 
@@ -23,7 +23,7 @@ export const PlayerContext = createContext<PlayerContextType>({
 })
 
 export const PlayerProvider = ({ children }: { children: any }) => {
-    const { character } = useContext(CharacterContext)
+    const { characters: character } = useContext(CharactersContext)
     const { user, gameCon, gamestate, terrain, reconnect, realm } = useContext(GamestateContext)
     const { shopOpen, setShopOpen, craftingBenchOpen, setCraftingBenchOpen } = useContext(UIContext)
     const { settings } = useContext(SettingsContext)
@@ -52,21 +52,21 @@ export const PlayerProvider = ({ children }: { children: any }) => {
         }
     }
 
-    function getSelectedCell() {
-        if (!character || !gamestate || !gamestate.render_objects) return
-        const x = character.x
-        const y = character.y
+    // function getSelectedCell() {
+    //     if (!character || !gamestate || !gamestate.render_objects) return
+    //     const x = character.x
+    //     const y = character.y
 
-        const newPosMap = {
-            up: { x: x, y: y + 1 },
-            down: { x: x, y: y - 1 },
-            left: { x: x - 1, y: y },
-            right: { x: x + 1, y: y },
-        }
+    //     const newPosMap = {
+    //         up: { x: x, y: y + 1 },
+    //         down: { x: x, y: y - 1 },
+    //         left: { x: x - 1, y: y },
+    //         right: { x: x + 1, y: y },
+    //     }
 
-        const newPos = newPosMap[character.direction]
-        setSelectedCell(newPos)
-    }
+    //     const newPos = newPosMap[character.direction]
+    //     setSelectedCell(newPos)
+    // }
 
     function checkSolidTile({ x, y, realm }: { x: number; y: number; realm: Realm }) {
         const posKey = x + "_" + y
@@ -91,9 +91,9 @@ export const PlayerProvider = ({ children }: { children: any }) => {
         return solid
     }
 
-    useEffect(() => {
-        getSelectedCell()
-    }, [character])
+    // useEffect(() => {
+    //     getSelectedCell()
+    // }, [character])
 
     useEffect(() => {
         gameActions.current.user = user

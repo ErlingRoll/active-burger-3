@@ -1,5 +1,6 @@
+import { RunOptionType } from "../../models/constants.js"
 import { LootRunOption } from "../../models/run-choice/options/loot-option.js"
-import { RunOption, RunOptionType } from "../../models/run-choice/run-option.js"
+import { RunOption } from "../../models/run-choice/run-option.js"
 
 export class OptionGenerator {
     static runOptionFromModel(runOption: RunOption | null): RunOption | null {

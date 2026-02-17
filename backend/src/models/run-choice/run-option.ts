@@ -1,11 +1,7 @@
-import { Rarity } from "../constants.js"
+import { Rarity, RunOptionType } from "../constants.js"
 import { Run } from "../run.js"
 import { Tile } from "../tile.js"
 import { User } from "../user.js"
-
-export enum RunOptionType {
-    LOOT = "loot",
-}
 
 export class RunOption {
     title: string | null

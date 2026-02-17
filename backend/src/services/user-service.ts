@@ -1,5 +1,6 @@
 import { UserDao } from "../database/user-dao.js"
-import { CharacterName, generateCharacter } from "../generators/character/character-generator.js"
+import { CharacterGenerator } from "../generators/character/character-generator.js"
+import { CharacterName } from "../models/constants.js"
 import { User } from "../models/user.js"
 
 export class UserService {
@@ -15,7 +16,7 @@ export class UserService {
             throw new Error(`Failed to initialize user with discord ID ${discordId}`)
         }
 
-        const firstCharacter = await generateCharacter({
+        const firstCharacter = await CharacterGenerator.generateCharacter({
             userId: user.id,
             name: CharacterName.CLYDE,
             override: { party_position: 0 },

@@ -1,9 +1,12 @@
 import { Dice } from "../game/dice.js"
+import { characterRarityTable } from "../generators/character/character-generator.js"
 import { GameEvent } from "../hub/types.js"
 import { hub } from "../index.js"
-import { LootRunOption, LootType } from "./run-choice/options/loot-option.js"
+import { capitalize } from "../utils/string-utils.js"
+import { CharacterName, ItemType, LootType, Rarity, RunOptionType } from "./constants.js"
+import { SoulShard } from "./item/soul-shard.js"
+import { LootRunOption } from "./run-choice/options/loot-option.js"
 import { RunChoice } from "./run-choice/run-choice.js"
-import { RunOptionType } from "./run-choice/run-option.js"
 import { Run } from "./run.js"
 import { TileObject } from "./tile-object.js"
 import { User } from "./user.js"
@@ -13,9 +16,8 @@ export class Chest extends TileObject {
     static OPTION_TYPE_TABLE = {
         [RunOptionType.LOOT]: 1,
     }
-    static LOOT_TYPE_TABLE = { [LootType.GOLD]: 10, [LootType.ESSENCE]: 1 }
-    static MAX_GOLD_LOOT = 100
-    static MAX_ESSENCE_LOOT = 10
+    static LOOT_TYPE_TABLE = { [LootType.GOLD]: 1, [LootType.ESSENCE]: 1, [LootType.ITEM]: 1 }
+    static ITEM_LOOT_TABLE = { [ItemType.SOUL_SHARD]: 1 }
 
     constructor(chest: any) {
         super(chest)
@@ -30,7 +32,7 @@ export class Chest extends TileObject {
             this.tile_id,
             Array.from({ length: Chest.DEFAULT_CHOICE_COUNT }, () => {
                 // const lootOptionType = Dice.pickWeighted({table: Chest.OPTION_TYPE_TABLE, defaultValue: RunOptionType.LOOT})
-                const option = this.generateLootOption()
+                const option = this.spawnLootOption({ user })
                 return option
             })
         )
@@ -43,7 +45,7 @@ export class Chest extends TileObject {
         })
     }
 
-    generateLootOption(): LootRunOption {
+    spawnLootOption({ user }: { user: User }): LootRunOption {
         const lootType = Dice.pickWeighted({ table: Chest.LOOT_TYPE_TABLE, defaultValue: LootType.GOLD })
 
         let option = null
@@ -70,6 +72,8 @@ export class Chest extends TileObject {
                     count: 1,
                 })
                 break
+            case LootType.ITEM:
+                return this.spawnItemOption({ user })
             default:
                 console.error(`Unsupported loot type: ${lootType}`)
         }
@@ -79,5 +83,40 @@ export class Chest extends TileObject {
         }
 
         return option
+    }
+
+    spawnItemOption({ user }: { user: User }): LootRunOption {
+        const itemType = Dice.pickWeighted({ table: Chest.ITEM_LOOT_TABLE, defaultValue: ItemType.SOUL_SHARD })
+
+        switch (itemType) {
+            case ItemType.SOUL_SHARD:
+                const characterName = Dice.pickWeighted({
+                    table: characterRarityTable,
+                    defaultValue: CharacterName.CLYDE,
+                })
+
+                const item = new SoulShard({
+                    id: "",
+                    created_at: new Date().toISOString(),
+                    user_id: user.id,
+                    name: `${capitalize(characterName)} Soul Shard`,
+                    description: `A soul shard containing the essence of ${capitalize(characterName)}`,
+                    character_shard: characterName,
+                })
+
+                return new LootRunOption({
+                    title: "Soul Shard",
+                    description: "A fragment of a soul. It pulses with dark energy.",
+                    rarity: Rarity.LEGENDARY,
+                    type: RunOptionType.LOOT,
+                    loot_type: LootType.ITEM,
+                    texture: "item/misc/soul_shard",
+                    count: 1,
+                    item: item,
+                })
+            default:
+                console.error(`Unsupported item type: ${itemType}`)
+                throw new Error(`Unsupported item type: ${itemType}`)
+        }
     }
 }

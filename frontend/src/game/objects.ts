@@ -1,7 +1,7 @@
 import { CharacterSchema, UserSchema } from "../models/account"
 import { LootType, Rarity, RunOptionType } from "../models/constants"
 import { RenderObject } from "../models/object"
-import { BaseSchema, FloorSchema, RunSchema, TileObjectSchema, TileSchema } from "../models/schemas"
+import { BaseSchema, FloorSchema, ItemSchema, RunSchema, TileObjectSchema, TileSchema } from "../models/schemas"
 
 export interface User extends BaseSchema, UserSchema {
     characters: CharacterSchema[]
@@ -41,6 +41,8 @@ export interface LootRunOption extends RunOption {
     loot_type: LootType
     count: number
 }
+
+export interface Item extends BaseSchema, ItemSchema {}
 
 export const TERRAIN_OBJECTS: { [object_id: string]: Partial<RenderObject> } = {
     gold_ore: {

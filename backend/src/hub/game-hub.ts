@@ -6,6 +6,7 @@ import { User } from "../models/user.js"
 import { UserActions } from "./actions/user-actions.js"
 import { RunActions } from "./actions/run-actions.js"
 import { TileActions } from "./actions/tile-actions.js"
+import { ItemActions } from "./actions/item-actions.js"
 
 export class GameHub {
     private readonly clientsById = new Map<ClientId, ClientConnection>()
@@ -182,6 +183,10 @@ export class GameHub {
 
             case UserAction.SELECT_RUN_OPTION:
                 RunActions.selectRunOption({ clientId, user, payload })
+                break
+
+            case UserAction.USE_ITEM:
+                ItemActions.useItem({ clientId, user, payload })
                 break
 
             default:

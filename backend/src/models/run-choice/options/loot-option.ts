@@ -1,25 +1,24 @@
+import { ItemDao } from "../../../database/item-dao.js"
 import { TileType } from "../../../database/types/tiles.js"
 import { GameEvent } from "../../../hub/types.js"
 import { hub } from "../../../index.js"
+import { LootType } from "../../constants.js"
+import { Item } from "../../item/item.js"
 import { Run } from "../../run.js"
 import { Tile } from "../../tile.js"
 import { User } from "../../user.js"
 import { RunOption } from "../run-option.js"
 
-export enum LootType {
-    GOLD = "gold",
-    ESSENCE = "essence",
-    ITEM = "item",
-}
-
 export class LootRunOption extends RunOption {
     count: number
     loot_type: LootType
+    item: Item | null
 
-    constructor(option: { count: number; loot_type: LootType } & RunOption) {
+    constructor(option: { count: number; loot_type: LootType; item?: Item | null } & RunOption) {
         super(option)
         this.count = option.count
         this.loot_type = option.loot_type
+        this.item = option.item ? new Item(option.item) : null
     }
 
     async select({ user, run, tile }: { user: User; run: Run; tile: Tile }): Promise<void> {
@@ -36,19 +35,14 @@ export class LootRunOption extends RunOption {
             })
         )
 
-        const updatedRun = new Run({
-            ...run,
-            gold: run.gold + (this.loot_type === LootType.GOLD ? this.count : 0),
-            essence: run.essence + (this.loot_type === LootType.ESSENCE ? this.count : 0),
-        })
-        databasePromises.push(updatedRun.sync())
+        databasePromises.push(this.giveLoot({ user, run }))
 
         await Promise.all(databasePromises)
 
         hub.sendToUser(user.id, {
             event: GameEvent.RUN_STATS_UPDATED,
             payload: {
-                run_stats: updatedRun.getStats(),
+                run_stats: run.getStats(),
             },
         })
 
@@ -62,9 +56,27 @@ export class LootRunOption extends RunOption {
                         count: this.count,
                         rarity: this.rarity,
                         loot_type: this.loot_type,
+                        item: this.item,
                     },
                 ],
             },
         })
+    }
+
+    async giveLoot({ user, run }: { user: User; run: Run }): Promise<void | any> {
+        switch (this.loot_type) {
+            case LootType.GOLD:
+                run.gold += this.count
+                return await run.sync()
+            case LootType.ESSENCE:
+                run.essence += this.count
+                return await run.sync()
+            case LootType.ITEM:
+                if (!this.item) {
+                    console.error("LootRunOption of type ITEM must have an item")
+                    return
+                }
+                return await ItemDao.createItem(this.item.getSchema())
+        }
     }
 }

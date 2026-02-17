@@ -1,5 +1,6 @@
+import { RunOptionType } from "../constants.js"
 import { LootRunOption } from "./options/loot-option.js"
-import { RunOption, RunOptionType } from "./run-option.js"
+import { RunOption } from "./run-option.js"
 
 export interface RunChoiceInterface {
     tile_id: string | null

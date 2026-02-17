@@ -1,4 +1,4 @@
-import { Rarity, TileObjectType } from "../../models/constants.js"
+import { CharacterName, ItemType, Rarity, TileObjectType } from "../../models/constants.js"
 import { TileType } from "./tiles.js"
 
 export interface BaseSchema {
@@ -28,6 +28,7 @@ export interface CharacterSchema {
     cooldown: number
     texture: string
     party_position: number
+    game_id: string
 }
 
 export interface RunSchema {
@@ -70,4 +71,18 @@ export interface TileObjectSchema {
     hp?: number | null
     max_hp?: number | null
     damage?: number | null
+}
+
+export interface ItemSchema {
+    user_id: string
+    game_id: string
+    item_type: ItemType
+    name: string
+    description: string | null
+    texture: string
+    rarity: Rarity
+    stackable: boolean
+    count: number
+    value: number
+    character_shard: CharacterName | null
 }

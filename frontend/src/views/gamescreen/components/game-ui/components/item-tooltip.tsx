@@ -1,6 +1,6 @@
 import { PlacesType, Tooltip } from "react-tooltip"
-import { Equipment, Item } from "../../../../../models/item"
 import ItemInfo from "./item-info"
+import { Item } from "../../../../../game/objects"
 
 const ItemTooltip = ({ item, namespace, place }: { item: Partial<Item>; namespace: string; place?: PlacesType }) => {
     return (

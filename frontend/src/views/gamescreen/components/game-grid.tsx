@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, PointerEvent, MouseEvent, useState } from "react"
 import { GamestateContext } from "../../../contexts/gamestate-context"
-import { CharacterContext } from "../../../contexts/character-context"
+import { CharactersContext } from "../../../contexts/characters-context"
 import { UIContext } from "../../../contexts/ui-context"
 import { Character, Entity, RenderObject } from "../../../models/object"
 import { Terrain } from "../../../models/terrain"
@@ -33,7 +33,7 @@ const GameGrid = ({
     editMode = false,
 }: GameGridProps) => {
     const { realmSettings, gamestate, terrain, damageHits } = useContext(GamestateContext)
-    const { character } = useContext(CharacterContext)
+    const { characters: character } = useContext(CharactersContext)
     const { showGrid } = useContext(UIContext)
 
     const cellName = (x: number, y: number) => `cell-${x},${y}`

@@ -29,10 +29,10 @@ export interface Entity extends RenderObject {
     regen: number
 }
 
-export interface Character extends Entity {
-    account_id: string
-    items: { [id: string]: Item }
-    equipment: { [slot: string]: Item | null }
-    max_exp: number
-    current_exp: number
-}
+// export interface Character extends Entity {
+//     account_id: string
+//     items: { [id: string]: Item }
+//     equipment: { [slot: string]: Item | null }
+//     max_exp: number
+//     current_exp: number
+// }

@@ -1,5 +1,6 @@
 import { database } from "../index.js"
 import { Run } from "../models/run.js"
+import { ClassProps } from "../utils/type-utils.js"
 import { RunSchema } from "./types/schemas.js"
 
 export class RunDao {
@@ -42,17 +43,20 @@ export class RunDao {
         return new Run(fullRun)
     }
 
-    static async createRun(run: Partial<RunSchema> | any): Promise<RunSchema> {
-        const res = await database.from("run").insert(run).select()
+    static async createRun(run: Partial<RunSchema>): Promise<Run | null> {
+        const res = await database
+            .from("run")
+            .insert(run as RunSchema)
+            .select()
 
         if (res.error) {
             throw new Error(`Failed to create run for user ID ${run.user_id}: ${res.error.message}`)
         }
 
-        return res.data[0] as unknown as RunSchema
+        return res.data[0] ? new Run(res.data[0] as ClassProps<Run>) : null
     }
 
-    static async updateRun(run: Run): Promise<RunSchema> {
+    static async updateRun(run: Run): Promise<Run> {
         const res = await database
             .from("run")
             .update({

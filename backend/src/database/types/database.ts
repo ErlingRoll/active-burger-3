@@ -19,6 +19,7 @@ export type Database = {
           cooldown: number
           created_at: string
           damage: number
+          game_id: string
           hp: number
           hp_regen: number
           id: string
@@ -36,6 +37,7 @@ export type Database = {
           cooldown?: number
           created_at?: string
           damage?: number
+          game_id: string
           hp?: number
           hp_regen?: number
           id?: string
@@ -53,6 +55,7 @@ export type Database = {
           cooldown?: number
           created_at?: string
           damage?: number
+          game_id?: string
           hp?: number
           hp_regen?: number
           id?: string
@@ -139,6 +142,62 @@ export type Database = {
             columns: ["run_id"]
             isOneToOne: false
             referencedRelation: "run"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      item: {
+        Row: {
+          character_shard: string | null
+          count: number
+          created_at: string
+          description: string | null
+          game_id: string
+          id: string
+          item_type: string
+          name: string
+          rarity: string
+          stackable: boolean
+          texture: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          character_shard?: string | null
+          count?: number
+          created_at?: string
+          description?: string | null
+          game_id: string
+          id?: string
+          item_type: string
+          name: string
+          rarity: string
+          stackable: boolean
+          texture: string
+          user_id: string
+          value?: number
+        }
+        Update: {
+          character_shard?: string | null
+          count?: number
+          created_at?: string
+          description?: string | null
+          game_id?: string
+          id?: string
+          item_type?: string
+          name?: string
+          rarity?: string
+          stackable?: boolean
+          texture?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
             referencedColumns: ["id"]
           },
         ]

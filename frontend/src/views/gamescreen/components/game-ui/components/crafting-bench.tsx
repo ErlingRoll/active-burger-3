@@ -1,6 +1,6 @@
 import { Fragment, useContext, useState } from "react"
 import { Equipment } from "../../../../../models/item"
-import { CharacterContext } from "../../../../../contexts/character-context"
+import { CharactersContext } from "../../../../../contexts/characters-context"
 import { PlayerContext } from "../../../../../contexts/player-context"
 import { CRAFTING_CURRENCY } from "../../../../../game/items/currency"
 
@@ -14,7 +14,7 @@ const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eage
 const CraftingBench = () => {
     const [item, setItem] = useState<Equipment | null>(null)
 
-    const { items } = useContext(CharacterContext)
+    const { items } = useContext(CharactersContext)
     const { gameActions } = useContext(PlayerContext)
     const { setCraftingBenchOpen } = useContext(UIContext)
 

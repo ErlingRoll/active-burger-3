@@ -1,12 +1,12 @@
 import { Fragment, useContext } from "react"
-import { CharacterContext } from "../../../../../contexts/character-context"
+import { CharactersContext } from "../../../../../contexts/characters-context"
 import { PlayerContext } from "../../../../../contexts/player-context"
 import ItemTooltip from "./item-tooltip"
 
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
 const Inventory = () => {
-    const { items } = useContext(CharacterContext)
+    const { items } = useContext(CharactersContext)
     const { gameActions } = useContext(PlayerContext)
 
     return (
