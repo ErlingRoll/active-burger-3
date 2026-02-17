@@ -4,6 +4,7 @@ import { PiSwordBold } from "react-icons/pi"
 import { useContext, useState } from "react"
 import { MdStars } from "react-icons/md"
 import { CharactersContext } from "../../../../../contexts/characters-context"
+import { GiKnifeThrust } from "react-icons/gi"
 
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
@@ -14,7 +15,7 @@ const Characters = () => {
         <div className="flex flex-row gap-4 bg-[rgba(0,0,0,0.8)] p-2">
             <div className="flex flex-col items-center gap-2">
                 <h3 className="text-xl font-bold pl-2">
-                    {character.name} <span className="text-sm">Lvl {character.level}</span>
+                    {character.name} <span className="text-sm text-amber-500">Lvl {character.level}</span>
                 </h3>
                 <img
                     className="h-[20vh]"
@@ -23,7 +24,12 @@ const Characters = () => {
                 />
             </div>
             <div className="flex flex-col gap-2 font-bold">
-                <p className="text-xl font-bold text-transparent">{character.name}</p>
+                <div className="flex flex-row items-center gap-1 pt-[0.2rem]">
+                    <MdStars color="lightblue" className="mt-[1px]" />
+                    <p>
+                        {character.level_progress} / {character.level}
+                    </p>
+                </div>
                 <div className="flex flex-row items-center gap-1">
                     <FaHeart color="red" className="mt-[1px]" />
                     <p>{character.hp}</p>
@@ -33,14 +39,8 @@ const Characters = () => {
                     <p>{character.mana}</p>
                 </div>
                 <div className="flex flex-row items-center gap-1">
-                    <PiSwordBold color="gray" className="mt-[1px]" />
+                    <GiKnifeThrust color="lightgray" className="mt-[1px]" />
                     <p>{character.damage}</p>
-                </div>
-                <div className="flex flex-row items-center gap-1">
-                    <MdStars color="lightblue" className="mt-[1px]" />
-                    <p>
-                        {character.level_progress} / {character.level}
-                    </p>
                 </div>
             </div>
         </div>

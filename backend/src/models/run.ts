@@ -4,6 +4,7 @@ import { FloorGenerator } from "../generators/floor/floor-generator.js"
 import { hub } from "../index.js"
 import { ClassProps } from "../utils/type-utils.js"
 import { Floor } from "./floor.js"
+import { User } from "./user.js"
 
 // Gold standard
 export class Run implements BaseSchema, RunSchema {
@@ -54,8 +55,9 @@ export class Run implements BaseSchema, RunSchema {
         return new Run(schema as Run)
     }
 
-    async end(): Promise<void> {
+    async end(user: User): Promise<void> {
         this.active = false
+        await user.addEssence(this.essence)
         await this.sync()
     }
 

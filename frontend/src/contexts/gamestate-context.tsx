@@ -171,6 +171,9 @@ export const GameProvider = ({ children }: { children: any }) => {
             case GameEvent.LOGIN_SUCCESS:
                 on_login_success(payload)
                 break
+            case GameEvent.USER_UPDATED:
+                setUser(payload.user)
+                break
             case GameEvent.RUN_UPDATED:
                 setRun(payload.run)
                 break

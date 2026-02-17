@@ -29,6 +29,7 @@ export enum GameEvent {
     LOOT_DROPPED = "loot_dropped",
     RUN_CHOICE = "run_choice",
     CHARACTER_UPDATED = "character_updated",
+    USER_UPDATED = "user_updated",
 }
 
 export type ServerMessage = {

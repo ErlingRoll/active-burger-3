@@ -2,8 +2,10 @@ import { CharacterDao } from "../../database/character-dao.js"
 import { ItemDao } from "../../database/item-dao.js"
 import { CharacterGenerator } from "../../generators/character/character-generator.js"
 import { hub } from "../../index.js"
-import { CharacterName, ItemType } from "../../models/constants.js"
+import { ItemType } from "../../models/constants.js"
 import { Item } from "../../models/item/item.js"
+import { User } from "../../models/user.js"
+import { GameEvent } from "../types.js"
 
 interface UseItemPayload {
     item_id: string
@@ -16,7 +18,7 @@ export class ItemActions {
         payload,
     }: {
         clientId: string
-        user: any
+        user: User
         payload: UseItemPayload
     }): Promise<void> {
         const item = await ItemDao.getItemById(payload.item_id)
@@ -34,7 +36,7 @@ export class ItemActions {
         }
     }
 
-    static async useSoulShard({ clientId, user, item }: { clientId: string; user: any; item: Item }): Promise<void> {
+    static async useSoulShard({ clientId, user, item }: { clientId: string; user: User; item: Item }): Promise<void> {
         const characterName = item.character_shard
         if (!characterName) {
             hub.sendClientError(clientId, `Soul Shard item ${item.id} does not have an associated character shard.`)
@@ -51,5 +53,31 @@ export class ItemActions {
         } else {
             character.gainExperience(1) // Default for soul shards. In future, we can have different shard types that grant different exp amounts.
         }
+
+        await this.consumeItem({ user, itemId: item.id })
+    }
+
+    // Deletes item if the stack size is 1, otherwise decrements stack size by 1. If item doesn't exist or user doesn't have it, sends client error.
+    static async consumeItem({ user, itemId }: { user: User; itemId: string }): Promise<void> {
+        const items = user.items
+        const item = items.find((i) => i.id === itemId)
+        if (!item) {
+            throw new Error(`User ${user.id} does not have item with ID ${itemId}`)
+        }
+
+        if (item.count > 1) {
+            item.count -= 1
+            await ItemDao.updateItem(item)
+        } else {
+            await ItemDao.deleteItem(itemId)
+            items.splice(items.indexOf(item), 1)
+        }
+
+        hub.sendToUser(user.id, {
+            event: GameEvent.ITEMS_UPDATED,
+            payload: {
+                items,
+            },
+        })
     }
 }

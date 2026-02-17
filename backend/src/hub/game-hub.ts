@@ -174,7 +174,7 @@ export class GameHub {
                 break
 
             case UserAction.END_RUN:
-                RunActions.endRun({ clientId, payload })
+                RunActions.endRun({ clientId, user, payload })
                 break
 
             case UserAction.ACTIVATE_TILE:

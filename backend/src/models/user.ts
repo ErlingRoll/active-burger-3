@@ -1,6 +1,10 @@
 import { BaseSchema, UserSchema } from "../database/types/schemas.js"
 import { UserDao } from "../database/user-dao.js"
+import { GameEvent } from "../hub/types.js"
+import { hub } from "../index.js"
+import { ClassProps } from "../utils/type-utils.js"
 import { Character } from "./character.js"
+import { Item } from "./item/item.js"
 
 export class User implements BaseSchema, UserSchema {
     static PARTY_SIZE = 3
@@ -14,19 +18,33 @@ export class User implements BaseSchema, UserSchema {
     essence: number
 
     characters!: Character[]
+    items!: Item[]
 
-    constructor(schema: User) {
-        this.id = schema.id
-        this.created_at = schema.created_at
-        this.name = schema.name
-        this.discord_id = schema.discord_id
-        this.discord_avatar = schema.discord_avatar
-        this.admin = schema.admin
-        this.essence = schema.essence
+    constructor(user: ClassProps<User>) {
+        this.id = user.id
+        this.created_at = user.created_at
+        this.name = user.name
+        this.discord_id = user.discord_id
+        this.discord_avatar = user.discord_avatar
+        this.admin = user.admin
+        this.essence = user.essence
+        this.characters = user.characters || []
+        this.items = user.items || []
     }
 
     async sync(): Promise<void> {
         await UserDao.updateUser(this)
+        hub.sendToUser(this.id, {
+            event: GameEvent.USER_UPDATED,
+            payload: {
+                user: this,
+            },
+        })
+    }
+
+    getSchema(): UserSchema {
+        const { id, created_at, characters, items, ...userSchema } = this
+        return userSchema
     }
 
     static async loadById(userId: string): Promise<User> {
@@ -47,5 +65,10 @@ export class User implements BaseSchema, UserSchema {
 
     getParty(): Character[] {
         return this.characters.filter((c) => c.party_position !== null).slice(0, User.PARTY_SIZE)
+    }
+
+    async addEssence(amount: number): Promise<void> {
+        this.essence += amount
+        this.sync()
     }
 }

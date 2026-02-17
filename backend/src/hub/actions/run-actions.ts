@@ -4,6 +4,7 @@ import { RunGenerator } from "../../generators/run/run-generator.js"
 import { hub } from "../../index.js"
 import { RunOption } from "../../models/run-choice/run-option.js"
 import { Run } from "../../models/run.js"
+import { User } from "../../models/user.js"
 import { GameEvent } from "../types.js"
 
 export interface selectedRunChoicePayload {
@@ -25,6 +26,13 @@ export class RunActions {
             event: GameEvent.RUN_UPDATED,
             payload: {
                 run: run,
+            },
+        })
+
+        hub.sendToClient(clientId, {
+            event: GameEvent.RUN_STATS_UPDATED,
+            payload: {
+                run_stats: run.getStats(),
             },
         })
     }
@@ -59,9 +67,7 @@ export class RunActions {
         runOption.select?.({ user, run, tile })
     }
 
-    static async endRun({ clientId, payload }: { clientId: string; payload: any }): Promise<void> {
-        const user = hub.getUserByClientId(clientId)
-
+    static async endRun({ clientId, user, payload }: { clientId: string; user: User; payload: any }): Promise<void> {
         const run = await Run.loadActiveByUserId(user.id)
         if (!run) {
             hub.sendClientError(clientId, `No active run to end.`)
@@ -69,7 +75,7 @@ export class RunActions {
         }
 
         try {
-            await run.end()
+            await run.end(user)
             hub.sendToClient(clientId, {
                 event: GameEvent.RUN_ENDED,
                 payload: {},
