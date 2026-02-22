@@ -1,6 +1,7 @@
 import type WebSocket from "ws"
 import { SimpleRateLimiter } from "./rate-limit.js"
 import { ClientId, ServerMessage } from "./types.js"
+import { safeStringify } from "../utils/string-utils.js"
 
 export class ClientConnection {
     public readonly id: ClientId
@@ -25,7 +26,8 @@ export class ClientConnection {
         const bufferedAmount: number = (this.ws as any).bufferedAmount ?? 0
         if (bufferedAmount > 1_000_000) return false
 
-        this.ws.send(JSON.stringify(msg))
+        const stringMsg = safeStringify(msg)
+        this.ws.send(stringMsg)
         return true
     }
 

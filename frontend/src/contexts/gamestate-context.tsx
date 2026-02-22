@@ -54,8 +54,8 @@ type GamestateContextType = {
     setItems: Dispatch<SetStateAction<Item[]>>
     run: Run | null
     setRun: Dispatch<SetStateAction<Run | null>>
-    floors: Floor[]
-    setFloors: Dispatch<SetStateAction<Floor[]>>
+    floors: { [key: string]: Floor }
+    setFloors: Dispatch<SetStateAction<{ [key: string]: Floor }>>
     runStats: Omit<Run, "floors"> | null
     setRunStats: Dispatch<SetStateAction<Omit<Run, "floors"> | null>>
     runChoices: RunChoice[]
@@ -95,7 +95,7 @@ export const GameProvider = ({ children }: { children: any }) => {
     // Run state
     const [run, setRun] = React.useState<Run | null>(null)
     const [runStats, setRunStats] = React.useState<Omit<Run, "floors"> | null>(null)
-    const [floors, setFloors] = React.useState<Floor[]>([])
+    const [floors, setFloors] = React.useState<{ [key: string]: Floor }>({})
 
     useEffect(() => {
         if (!realm) return
@@ -205,7 +205,7 @@ export const GameProvider = ({ children }: { children: any }) => {
         setRun((prevRun) => {
             if (!prevRun) return prevRun
             const newRun = { ...prevRun }
-            const floorIndex = newRun.floors.length - 1
+            const floorIndex = Object.keys(newRun.floors).length - 1
             const floor = newRun.floors[floorIndex]
             floor.tiles[`${updatedTile.x}_${updatedTile.y}`] = updatedTile
             return newRun

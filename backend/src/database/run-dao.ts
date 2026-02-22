@@ -1,10 +1,14 @@
+import { TileGenerator } from "../generators/tile/tile-generator.js"
 import { database } from "../index.js"
+import { Floor } from "../models/floor.js"
 import { Run } from "../models/run.js"
+import { Tile } from "../models/tile.js"
 import { ClassProps } from "../utils/type-utils.js"
-import { RunSchema } from "./types/schemas.js"
+import { batchUpdate } from "./database-utils.js"
+import { FloorSchema, RunSchema, TileSchema } from "./types/schemas.js"
 
 export class RunDao {
-    static async getActiveRunByUserId(userId: string): Promise<Run | null> {
+    static async getRunsByUserId(userId: string): Promise<Run[] | null> {
         const res = await database
             .from("run")
             .select(
@@ -18,29 +22,21 @@ export class RunDao {
                 )`
             )
             .eq("user_id", userId)
-            .eq("active", true)
 
         if (res.error) {
             console.error(res.error.message)
             return null
         }
 
-        if (res.data && res.data.length > 1) {
-            throw new Error(`Found ${res.data.length} active runs for user ID ${userId}`)
-        }
+        if (!res.data) return null
 
-        const fullRun: any = res.data[0]
+        const runs: any = res.data
 
-        if (!fullRun) return null
-
-        fullRun.floors.forEach((floor: any) => {
-            floor.tiles = floor.tiles.reduce((acc: any, tile: any) => {
-                acc[tile.x + "_" + tile.y] = tile
-                return acc
-            }, {})
+        runs.forEach((run: any) => {
+            this.mapFloorsAndTiles(run)
         })
 
-        return new Run(fullRun)
+        return runs.map((run: any) => new Run(run))
     }
 
     static async createRun(run: Partial<RunSchema>): Promise<Run | null> {
@@ -77,5 +73,30 @@ export class RunDao {
         }
 
         return run
+    }
+
+    static async updateRuns(runs: Partial<ClassProps<Run>>[]): Promise<void> {
+        await batchUpdate("run", runs)
+    }
+
+    // Takes the database result and creates the game objects associated with the run
+    private static mapFloorsAndTiles(
+        run: RunSchema & { floors: FloorSchema[] | Record<number, FloorSchema & { tiles: Record<string, TileSchema> }> }
+    ): void {
+        const floorArray = run.floors as FloorSchema[]
+        const floorMap = floorArray.reduce((acc: any, floor: any) => {
+            const tileMap = floor.tiles?.reduce((acc: any, tileSchema: any) => {
+                const tile = new Tile({ ...tileSchema, floor: floor })
+                const tileObject = tile.tile_object
+                    ? TileGenerator.tileObjectFromModel({ ...tile.tile_object, tile: tile })
+                    : null
+                tile.tile_object = tileObject
+                acc[tile.x + "_" + tile.y] = tile
+                return acc
+            }, {})
+            acc[floor.number] = new Floor({ ...floor, tiles: tileMap })
+            return acc
+        }, {})
+        run.floors = floorMap
     }
 }

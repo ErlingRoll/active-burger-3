@@ -1,7 +1,10 @@
 import { TileObjectDao } from "../database/tile-object-dao.js"
 import { BaseSchema, TileObjectSchema } from "../database/types/schemas.js"
+import { gamesync } from "../index.js"
+import { ClassProps } from "../utils/type-utils.js"
 import { Rarity, TileObjectType } from "./constants.js"
 import { Run } from "./run.js"
+import { Tile } from "./tile.js"
 import { User } from "./user.js"
 
 export class TileObject implements BaseSchema, TileObjectSchema {
@@ -16,20 +19,11 @@ export class TileObject implements BaseSchema, TileObjectSchema {
     max_hp?: number | null
     damage?: number | null
     game_id?: string | null
+    deleted: boolean = false
 
-    constructor(tileObject: {
-        id: string
-        created_at: string
-        tile_id: string
-        tile_object_type: TileObjectType
-        rarity: Rarity
-        texture: string
-        name: string
-        hp?: number | null
-        max_hp?: number | null
-        damage?: number | null
-        game_id?: string | null
-    }) {
+    tile: Tile
+
+    constructor(tileObject: ClassProps<TileObject>) {
         this.id = tileObject.id
         this.created_at = tileObject.created_at
         this.tile_id = tileObject.tile_id
@@ -41,17 +35,8 @@ export class TileObject implements BaseSchema, TileObjectSchema {
         this.max_hp = tileObject.max_hp
         this.damage = tileObject.damage
         this.game_id = tileObject.game_id
-    }
-
-    static fromSchema(tileObjectSchema: TileObjectSchema): TileObject {
-        if (!tileObjectSchema) {
-            throw new Error("Cannot create TileObject from null or undefined schema")
-        }
-        return new TileObject({ ...tileObjectSchema, id: "", created_at: "" })
-    }
-
-    static fromModel(tileObject: TileObject): TileObject {
-        return new TileObject(tileObject)
+        this.deleted = tileObject.deleted
+        this.tile = tileObject.tile
     }
 
     async sync(): Promise<void> {
@@ -59,7 +44,18 @@ export class TileObject implements BaseSchema, TileObjectSchema {
     }
 
     async delete(): Promise<void> {
-        await TileObjectDao.deleteById(this.id)
+        if (!this.tile) {
+            console.error("Cannot delete tile object without associated tile")
+            return
+        }
+        if (!this.tile.deleteTileObject) {
+            console.error("Associated tile does not have deleteTileObject method")
+            return
+        }
+        this.tile.deleteTileObject()
+
+        this.deleted = true
+        gamesync.markDirty(this)
     }
 
     async activate({ user, activeRun }: { user: User; activeRun: Run }): Promise<void> {

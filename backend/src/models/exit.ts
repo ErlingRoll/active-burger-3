@@ -9,10 +9,6 @@ export class Exit extends TileObject {
         super(exit)
     }
 
-    static fromModel(exit: Exit): Exit {
-        return new Exit(exit)
-    }
-
     async activate({ user, activeRun }: { user: User; activeRun: Run }): Promise<void> {
         await activeRun.exitFloor()
         hub.sendToUser(user.id, {

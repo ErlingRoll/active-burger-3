@@ -1,9 +1,11 @@
+import "dotenv/config"
 import "./utils/logging-utils.js"
 import { WebSocketServer } from "ws"
 import { GameHub } from "./hub/game-hub.js"
 import { createClient } from "@supabase/supabase-js"
 import { Database } from "./database/types/database.js"
-import "dotenv/config"
+import { Gamestate } from "./game/gamestate.js"
+import { Gamesync } from "./game/gamesync.js"
 
 const PORT = Number(process.env.PORT ?? 8080)
 const PATH = "/game"
@@ -23,6 +25,10 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 }
 
 export const database = createClient<Database>(SUPABASE_URL, SUPABASE_KEY)
+
+export const gamesync = new Gamesync()
+
+export const gamestate = new Gamestate()
 
 export const hub = new GameHub()
 

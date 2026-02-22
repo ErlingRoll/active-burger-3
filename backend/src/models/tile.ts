@@ -1,6 +1,9 @@
 import { TileDao } from "../database/tile-dao.js"
 import { BaseSchema, TileSchema } from "../database/types/schemas.js"
 import { TileType } from "../database/types/tiles.js"
+import { gamesync } from "../index.js"
+import { ClassProps } from "../utils/type-utils.js"
+import { Floor } from "./floor.js"
 import { Run } from "./run.js"
 import { TileObject } from "./tile-object.js"
 import { User } from "./user.js"
@@ -17,8 +20,9 @@ export class Tile implements BaseSchema, TileSchema {
     tile_type: TileType
 
     tile_object: TileObject | null
+    floor: Floor
 
-    constructor(model: BaseSchema & TileSchema & { tile_object: TileObject | null }) {
+    constructor(model: ClassProps<Tile>) {
         this.id = model.id
         this.created_at = model.created_at
         this.run_id = model.run_id
@@ -29,33 +33,29 @@ export class Tile implements BaseSchema, TileSchema {
         this.hidden = model.hidden
         this.tile_type = model.tile_type
         this.tile_object = model.tile_object
+        this.floor = model.floor
     }
 
     async sync(): Promise<void> {
-        await TileDao.updateTile(this)
+        const { tile_object, floor, ...updateData } = this
+        await TileDao.updateTile(updateData)
     }
 
-    static async loadById(id: string): Promise<Tile> {
-        const tile = await TileDao.getTileById(id)
-        if (!tile) {
-            throw new Error(`Tile with ID ${id} not found.`)
-        }
-        return new Tile(tile)
-    }
-
-    static createFromSchema(schema: TileSchema): Tile {
-        return new Tile(schema as Tile)
+    async deleteTileObject(): Promise<void> {
+        if (!this.tile_object) return
+        this.tile_object = null
+        gamesync.markDirty(this)
     }
 
     async reveal(): Promise<void> {
         this.hidden = false
-        await this.sync()
+        gamesync.markDirty(this)
     }
 
     async activate({ user, activeRun }: { user: User; activeRun: Run }): Promise<void> {
         const tileObject = this.tile_object
         if (!tileObject) {
-            console.warn(`Tile at (${this.x}, ${this.y}) has no tile object to activate.`)
+            // console.warn(`Tile at (${this.x}, ${this.y}) has no tile object to activate.`)
             return
         }
         tileObject.activate({ user, activeRun })

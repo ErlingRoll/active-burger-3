@@ -79,41 +79,6 @@ export type Database = {
           },
         ]
       }
-      chest: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          rarity: string
-          tile_id: string
-          tile_object_type: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name?: string
-          rarity: string
-          tile_id: string
-          tile_object_type: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          rarity?: string
-          tile_id?: string
-          tile_object_type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "chest_tile_id_fkey"
-            columns: ["tile_id"]
-            isOneToOne: false
-            referencedRelation: "tile"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       floor: {
         Row: {
           created_at: string
@@ -151,6 +116,7 @@ export type Database = {
           character_shard: string | null
           count: number
           created_at: string
+          deleted: boolean
           description: string | null
           game_id: string
           id: string
@@ -166,6 +132,7 @@ export type Database = {
           character_shard?: string | null
           count?: number
           created_at?: string
+          deleted?: boolean
           description?: string | null
           game_id: string
           id?: string
@@ -181,6 +148,7 @@ export type Database = {
           character_shard?: string | null
           count?: number
           created_at?: string
+          deleted?: boolean
           description?: string | null
           game_id?: string
           id?: string
@@ -313,6 +281,7 @@ export type Database = {
         Row: {
           created_at: string
           damage: number | null
+          deleted: boolean
           game_id: string | null
           hp: number | null
           id: string
@@ -326,6 +295,7 @@ export type Database = {
         Insert: {
           created_at?: string
           damage?: number | null
+          deleted?: boolean
           game_id?: string | null
           hp?: number | null
           id?: string
@@ -339,6 +309,7 @@ export type Database = {
         Update: {
           created_at?: string
           damage?: number | null
+          deleted?: boolean
           game_id?: string | null
           hp?: number | null
           id?: string

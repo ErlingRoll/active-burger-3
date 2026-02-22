@@ -16,8 +16,9 @@ export class Item implements BaseSchema, ItemSchema {
     count: number = 1
     value: number
     character_shard: CharacterName | null = null
+    deleted: boolean = false
 
-    constructor(item: ClassProps<Item>) {
+    constructor(item: Omit<ClassProps<Item>, "deleted">) {
         this.id = item.id
         this.created_at = item.created_at
         this.user_id = item.user_id

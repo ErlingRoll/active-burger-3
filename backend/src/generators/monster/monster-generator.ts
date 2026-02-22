@@ -17,10 +17,7 @@ export class MonsterGenerator {
         overrides?: Partial<MonsterSchema>
     }): Promise<Monster | null> {
         const monsterSchema = await this.generateMonsterSchema({ tile, monsterRarityTable, overrides })
-        const monster = TileObjectDao.createTileObject(monsterSchema).then((tileObjectSchema) =>
-            tileObjectSchema ? (Monster.fromSchema(tileObjectSchema) as Monster) : null
-        )
-        return monster
+        return TileObjectDao.createTileObject(monsterSchema) as Promise<Monster | null>
     }
 
     static async generateMonsterSchema({

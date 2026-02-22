@@ -1,13 +1,12 @@
-import { TileSchema } from "../../database/types/schemas.js"
 import { TileType } from "../../database/types/tiles.js"
-import { hub } from "../../index.js"
-import { Run } from "../../models/run.js"
+import { gamestate, hub } from "../../index.js"
 import { Tile } from "../../models/tile.js"
 import { User } from "../../models/user.js"
 import { GameEvent } from "../types.js"
 
 export interface ActiveTilePayload {
     tile: Tile
+    floor_number: number
 }
 
 export class TileActions {
@@ -20,8 +19,18 @@ export class TileActions {
         user: User
         payload: ActiveTilePayload
     }): Promise<void> {
-        if (!payload.tile || !payload.tile.id) return
-        const tile = await Tile.loadById(payload.tile.id)
+        const activeRun = await gamestate.getActiveRunByUserId(user.id)
+        if (!activeRun) {
+            return hub.sendClientError(clientId, `No active run found.`)
+        }
+
+        const tile = await activeRun.getTile(payload.floor_number, payload.tile.x, payload.tile.y)
+        if (!tile) {
+            return hub.sendClientError(
+                clientId,
+                `Tile not found at (${payload.tile.x}, ${payload.tile.y}) on floor ${payload.floor_number}.`
+            )
+        }
 
         if (tile.hidden) {
             await tile.reveal()
@@ -31,12 +40,6 @@ export class TileActions {
                     tile: tile,
                 },
             })
-            return
-        }
-
-        const activeRun = await Run.loadActiveByUserId(user.id)
-        if (!activeRun) {
-            hub.sendClientError(clientId, `No active run found.`)
             return
         }
 

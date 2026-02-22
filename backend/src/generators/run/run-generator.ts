@@ -6,16 +6,14 @@ import { FloorGenerator } from "../floor/floor-generator.js"
 
 export class RunGenerator {
     static async startRun(user: User): Promise<Run | null> {
-        const runSchema = await RunGenerator.generateRun(user)
-        if (!runSchema) {
+        const run = await RunGenerator.generateRun(user)
+        if (!run) {
             console.error("Failed to generate run for user ID " + user.id)
             return null
         }
-
-        const run = Run.createFromSchema(runSchema)
-
         const firstFloor = await FloorGenerator.generateFloor({ user, run })
-        run.floors.push(firstFloor)
+
+        run.floors[firstFloor.number] = firstFloor
 
         return run
     }

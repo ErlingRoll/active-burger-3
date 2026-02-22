@@ -1,7 +1,7 @@
 import { BaseSchema, UserSchema } from "../database/types/schemas.js"
 import { UserDao } from "../database/user-dao.js"
 import { GameEvent } from "../hub/types.js"
-import { hub } from "../index.js"
+import { gamesync, hub } from "../index.js"
 import { ClassProps } from "../utils/type-utils.js"
 import { Character } from "./character.js"
 import { Item } from "./item/item.js"
@@ -34,6 +34,10 @@ export class User implements BaseSchema, UserSchema {
 
     async sync(): Promise<void> {
         await UserDao.updateUser(this)
+    }
+
+    async updateClient(): Promise<void> {
+        gamesync.markDirty(this)
         hub.sendToUser(this.id, {
             event: GameEvent.USER_UPDATED,
             payload: {
@@ -69,6 +73,6 @@ export class User implements BaseSchema, UserSchema {
 
     async addEssence(amount: number): Promise<void> {
         this.essence += amount
-        this.sync()
+        await this.updateClient()
     }
 }

@@ -1,10 +1,10 @@
 import { TileDao } from "../../database/tile-dao.js"
 import { OptionGenerator } from "../../generators/run/option-generator.js"
 import { RunGenerator } from "../../generators/run/run-generator.js"
-import { hub } from "../../index.js"
+import { gamestate, hub } from "../../index.js"
 import { RunOption } from "../../models/run-choice/run-option.js"
-import { Run } from "../../models/run.js"
 import { User } from "../../models/user.js"
+import { safeStringify } from "../../utils/string-utils.js"
 import { GameEvent } from "../types.js"
 
 export interface selectedRunChoicePayload {
@@ -43,19 +43,17 @@ export class RunActions {
         payload,
     }: {
         clientId: string
-        user: any
+        user: User
         payload: selectedRunChoicePayload
     }): Promise<void> {
-        const [tile, run] = await Promise.all([TileDao.getTileById(payload.tile_id), Run.loadActiveByUserId(user.id)])
-
-        if (!tile) {
-            hub.sendClientError(clientId, `Tile with ID ${payload.tile_id} not found.`)
-            return
+        const run = await gamestate.getActiveRunByUserId(user.id)
+        if (!run) {
+            return hub.sendClientError(clientId, `No active run found for user.`)
         }
 
-        if (!run) {
-            hub.sendClientError(clientId, `No active run found for user.`)
-            return
+        const tile = run.getTile(payload.option.floor_number, payload.option.tile_x, payload.option.tile_y)
+        if (!tile) {
+            return hub.sendClientError(clientId, `Tile with ID ${payload.tile_id} not found.`)
         }
 
         const runOption = OptionGenerator.runOptionFromModel(payload.option)
@@ -68,7 +66,7 @@ export class RunActions {
     }
 
     static async endRun({ clientId, user, payload }: { clientId: string; user: User; payload: any }): Promise<void> {
-        const run = await Run.loadActiveByUserId(user.id)
+        const run = await gamestate.getActiveRunByUserId(user.id)
         if (!run) {
             hub.sendClientError(clientId, `No active run to end.`)
             return

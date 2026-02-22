@@ -1,4 +1,5 @@
 import { BaseSchema, FloorSchema } from "../database/types/schemas.js"
+import { ClassProps } from "../utils/type-utils.js"
 import { Tile } from "./tile.js"
 
 export class Floor implements BaseSchema, FloorSchema {
@@ -10,15 +11,16 @@ export class Floor implements BaseSchema, FloorSchema {
 
     tiles: { [x_y: string]: Tile } = {}
 
-    private constructor(schema: Floor) {
-        this.id = schema.id
-        this.created_at = schema.created_at
-        this.run_id = schema.run_id
-        this.number = schema.number
-        this.mods = schema.mods
+    constructor(floor: ClassProps<Floor>) {
+        this.id = floor.id
+        this.created_at = floor.created_at
+        this.run_id = floor.run_id
+        this.number = floor.number
+        this.mods = floor.mods
+        this.tiles = floor.tiles
     }
 
-    static createFromSchema(schema: FloorSchema): Floor {
-        return new Floor(schema as Floor)
+    getTile(x: number, y: number): Tile | null {
+        return this.tiles[`${x}_${y}`] || null
     }
 }

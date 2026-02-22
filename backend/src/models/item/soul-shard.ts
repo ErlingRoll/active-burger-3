@@ -6,7 +6,7 @@ export class SoulShard extends Item {
     constructor(
         item: Omit<
             ClassProps<SoulShard>,
-            "game_id" | "item_type" | "stackable" | "count" | "rarity" | "value" | "texture"
+            "game_id" | "item_type" | "stackable" | "count" | "rarity" | "value" | "texture" | "deleted"
         >
     ) {
         super({

@@ -73,6 +73,7 @@ export interface TileObjectSchema {
     max_hp?: number | null
     damage?: number | null
     game_id?: string | null
+    deleted: boolean
 }
 
 export interface MonsterSchema extends TileObjectSchema {
@@ -91,4 +92,5 @@ export interface ItemSchema {
     count: number
     value: number
     character_shard: CharacterName | null
+    deleted: boolean
 }

@@ -3,7 +3,7 @@ import { Floor } from "../models/floor.js"
 import { FloorSchema } from "./types/schemas.js"
 
 export class FloorDao {
-    static async createFloor(floor: Partial<FloorSchema> | any): Promise<FloorSchema> {
+    static async createFloor(floor: Partial<FloorSchema> | any): Promise<Floor> {
         const res = await database
             .from("floor")
             .insert({
@@ -17,7 +17,7 @@ export class FloorDao {
             throw new Error(`Failed to create floor for run ID ${floor.run_id}: ${res.error.message}`)
         }
 
-        return res.data[0] as unknown as FloorSchema
+        return new Floor(res.data[0] as Floor)
     }
 
     static async getFloorsByRunId(runId: string): Promise<FloorSchema[]> {

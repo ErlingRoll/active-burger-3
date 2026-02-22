@@ -63,10 +63,10 @@ class GameActions {
         return this.send(action)
     }
 
-    activateTile(tile: Tile): boolean {
+    activateTile(payload: { tile: Tile; floor_number: number }): boolean {
         const action = {
             action: UserAction.ACTIVATE_TILE,
-            payload: { tile },
+            payload,
         }
         return this.send(action)
     }

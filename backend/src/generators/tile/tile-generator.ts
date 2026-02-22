@@ -14,6 +14,7 @@ import { Chest } from "../../models/chest.js"
 import { Exit } from "../../models/exit.js"
 import { MonsterGenerator } from "../monster/monster-generator.js"
 import { Monster } from "../../models/monster.js"
+import { ClassProps } from "../../utils/type-utils.js"
 
 const tileWeights = {
     [TileType.EMPTY]: 50,
@@ -91,7 +92,7 @@ export class TileGenerator {
             y,
             tile_type: tileType,
             hidden,
-        }).then((tileSchema) => Tile.createFromSchema(tileSchema))
+        }).then((tileSchema) => new Tile(tileSchema))
 
         if (hasObject) {
             switch (tileObjectType) {
@@ -106,7 +107,9 @@ export class TileGenerator {
                         hp: null,
                         max_hp: null,
                         damage: null,
-                    }).then((tileObjectSchema) => (tileObjectSchema ? TileObject.fromSchema(tileObjectSchema) : null))
+                    }).then((tileObjectSchema) =>
+                        tileObjectSchema ? this.tileObjectFromModel(tileObjectSchema) : null
+                    )
                     break
                 case TileObjectType.MONSTER:
                     tile.tile_object = await MonsterGenerator.generateMonster({ tile })
@@ -137,25 +140,25 @@ export class TileGenerator {
             y,
             tile_type: TileType.OBJECT,
             hidden: true,
-        }).then((tileSchema) => Tile.createFromSchema(tileSchema))
+        })
         tile.tile_object = await TileObjectDao.createTileObject({
             tile_id: tile.id,
             tile_object_type: TileObjectType.EXIT,
             rarity: Rarity.COMMON,
             texture: TileObjectType.EXIT,
             name: "Exit",
-        }).then((tileObjectSchema) => (tileObjectSchema ? TileObject.fromSchema(tileObjectSchema) : null))
+        }).then((tileObjectSchema) => (tileObjectSchema ? this.tileObjectFromModel(tileObjectSchema) : null))
 
         return tile
     }
 
-    static tileObjectFromModel(tileObject: TileObject | null): TileObject | null {
+    static tileObjectFromModel(tileObject: ClassProps<TileObject> | null): TileObject | null {
         if (!tileObject) return null
         switch (tileObject.tile_object_type) {
             case TileObjectType.CHEST:
-                return Chest.fromModel(tileObject as Chest)
+                return new Chest(tileObject)
             case TileObjectType.EXIT:
-                return Exit.fromModel(tileObject as Exit)
+                return new Exit(tileObject)
             case TileObjectType.MONSTER:
                 return new Monster(tileObject)
             default:

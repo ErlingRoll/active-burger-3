@@ -14,15 +14,16 @@ import { usePlayer } from "@/contexts/player-context"
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
 const RunScreen = () => {
-    const { run, setRun, runStats, floors, damageHits } = useGamestate()
+    const { run, setRun, runStats, floors, setFloors, damageHits } = useGamestate()
     const { gameActions } = usePlayer()
 
     const [tiles, setTiles] = useState<{ [pos: string]: Tile }>({})
 
     useEffect(() => {
-        const currentFloor = run?.floors[run.floors.length - 1]
+        const currentFloor = run?.floors[Object.keys(run.floors).length - 1]
         const tiles = currentFloor?.tiles || {}
         setTiles(tiles)
+        setFloors(run?.floors || {})
         // console.log("Run:", run)
         // console.log("Tiles:", tiles)
     }, [run])
@@ -44,16 +45,16 @@ const RunScreen = () => {
             return
         }
 
-        const activated = gameActions.activateTile(tile)
+        const activated = gameActions.activateTile({ tile: tile, floor_number: Object.keys(floors).length - 1 })
         if (!activated) return console.warn("Tile did not activate")
 
         if (tile.hidden) {
             setRun((prevRun) => {
                 if (!prevRun) return prevRun
                 const newRun = { ...prevRun }
-                const floorIndex = newRun.floors.length - 1
+                const floorIndex = Object.keys(newRun.floors).length - 1
                 const floor = newRun.floors[floorIndex]
-                floor.tiles[`${tile.x}_${tile.y}`] = { tile, tile_type: TileType.LOADING, hidden: false }
+                floor.tiles[`${tile.x}_${tile.y}`] = { ...tile, tile_type: TileType.LOADING, hidden: false }
                 return newRun
             })
         }
@@ -176,7 +177,7 @@ const RunScreen = () => {
                     </div>
                 </div>
                 <div className="absolute min-w-48 left-full ml-4 text-light text-1xl font-bold bg-[rgba(0,0,0,0.7)] p-4 shadow rounded">
-                    <h2 className="text-2xl mb-1 whitespace-nowrap">Floor: {floors.length}</h2>
+                    <h2 className="text-2xl mb-1 whitespace-nowrap">Floor: {Object.keys(floors).length}</h2>
                     <div className="flex flex-row items-center gap-1">
                         <RiCopperCoinFill color="gold" /> {runStats?.gold}
                     </div>

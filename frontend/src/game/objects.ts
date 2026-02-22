@@ -10,11 +10,11 @@ export interface User extends BaseSchema, UserSchema {
 export interface Character extends BaseSchema, CharacterSchema {}
 
 export interface Run extends BaseSchema, RunSchema {
-    floors: Floor[]
+    floors: Record<string, Floor>
 }
 
 export interface Floor extends BaseSchema, FloorSchema {
-    tiles: Tile[]
+    tiles: Record<string, Tile>
 }
 
 export interface Tile extends BaseSchema, TileSchema {

@@ -1,7 +1,7 @@
 import { TileGenerator } from "../generators/tile/tile-generator.js"
 import { database } from "../index.js"
 import { Tile } from "../models/tile.js"
-import { TileSchema } from "./types/schemas.js"
+import { BaseSchema, TileSchema } from "./types/schemas.js"
 
 export class TileDao {
     static async getTileByFloorId(floorId: string): Promise<{ [x_y: string]: TileSchema }> {
@@ -34,7 +34,7 @@ export class TileDao {
         return tile
     }
 
-    static async createTile(tile: Partial<TileSchema>): Promise<TileSchema> {
+    static async createTile(tile: Partial<TileSchema>): Promise<Tile> {
         const res = await database
             .from("tile")
             .insert(tile as TileSchema)
@@ -42,20 +42,20 @@ export class TileDao {
         if (res.error) {
             throw new Error(`Failed to create tile: ${res.error.message}`)
         }
-        return res.data![0] as unknown as TileSchema
+        return new Tile(res.data[0] as Tile)
     }
 
-    static async createTiles(tiles: TileSchema[] | any): Promise<TileSchema[]> {
+    static async createTiles(tiles: TileSchema[] | any): Promise<Tile[]> {
         const res = await database.from("tile").insert(tiles).select()
 
         if (res.error) {
             throw new Error(`Failed to create tiles: ${res.error.message}`)
         }
 
-        return res.data as unknown as TileSchema[]
+        return res.data.map((tileSchema) => new Tile(tileSchema as Tile))
     }
 
-    static async updateTile(tile: Tile): Promise<TileSchema> {
+    static async updateTile(tile: Partial<Tile>): Promise<Tile> {
         const res = await database
             .from("tile")
             .update({
@@ -63,10 +63,10 @@ export class TileDao {
                 hidden: tile.hidden,
                 tile_type: tile.tile_type,
             })
-            .eq("id", tile.id)
+            .eq("id", tile.id!)
         if (res.error) {
             throw new Error(`Failed to update tile ID ${tile.id}: ${res.error.message}`)
         }
-        return tile
+        return new Tile(tile as Tile)
     }
 }

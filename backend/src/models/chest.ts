@@ -23,10 +23,6 @@ export class Chest extends TileObject {
         super(chest)
     }
 
-    static fromModel(chest: Chest): Chest {
-        return new Chest(chest)
-    }
-
     async activate({ user, activeRun }: { user: User; activeRun: Run }): Promise<void> {
         const runChoice = new RunChoice(
             this.tile_id,
@@ -59,6 +55,10 @@ export class Chest extends TileObject {
                     loot_type: LootType.GOLD,
                     texture: "misc/gold",
                     count: 10,
+                    floor_number: this.tile.floor.number,
+                    tile_x: this.tile.x,
+                    tile_y: this.tile.y,
+                    tile: this.tile,
                 })
                 break
             case LootType.ESSENCE:
@@ -70,6 +70,10 @@ export class Chest extends TileObject {
                     loot_type: LootType.ESSENCE,
                     texture: "misc/essence",
                     count: 1,
+                    floor_number: this.tile.floor.number,
+                    tile_x: this.tile.x,
+                    tile_y: this.tile.y,
+                    tile: this.tile,
                 })
                 break
             case LootType.ITEM:
@@ -113,6 +117,10 @@ export class Chest extends TileObject {
                     texture: "item/misc/soul_shard",
                     count: 1,
                     item: item,
+                    floor_number: this.tile.floor.number,
+                    tile_x: this.tile.x,
+                    tile_y: this.tile.y,
+                    tile: this.tile,
                 })
             default:
                 console.error(`Unsupported item type: ${itemType}`)

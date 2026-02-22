@@ -1,9 +1,12 @@
 import { RunDao } from "../database/run-dao.js"
 import { BaseSchema, RunSchema } from "../database/types/schemas.js"
 import { FloorGenerator } from "../generators/floor/floor-generator.js"
+import { GameEvent } from "../hub/types.js"
 import { hub } from "../index.js"
 import { ClassProps } from "../utils/type-utils.js"
 import { Floor } from "./floor.js"
+import { TileObject } from "./tile-object.js"
+import { Tile } from "./tile.js"
 import { User } from "./user.js"
 
 // Gold standard
@@ -23,7 +26,7 @@ export class Run implements BaseSchema, RunSchema {
     gold: number
     essence: number
 
-    floors: Floor[] = []
+    floors: Record<number, Floor> = {}
 
     constructor(run: ClassProps<Run>) {
         this.id = run.id
@@ -47,14 +50,6 @@ export class Run implements BaseSchema, RunSchema {
         await RunDao.updateRun(this)
     }
 
-    static async loadActiveByUserId(userId: string): Promise<Run | null> {
-        return await RunDao.getActiveRunByUserId(userId)
-    }
-
-    static createFromSchema(schema: RunSchema): Run {
-        return new Run(schema as Run)
-    }
-
     async end(user: User): Promise<void> {
         this.active = false
         await user.addEssence(this.essence)
@@ -66,14 +61,44 @@ export class Run implements BaseSchema, RunSchema {
         if (!user) {
             throw new Error(`Cannot exit floor: user with ID ${this.user_id} not found in hub`)
         }
-        const newFloor = FloorGenerator.generateFloor({ user: user, run: this })
-        this.floors.push(await newFloor)
+        const newFloor = await FloorGenerator.generateFloor({ user: user, run: this })
+        this.floors[newFloor.number] = await newFloor
         await this.sync()
     }
 
-    async onDeath(): Promise<void> {}
+    getFloor(number: number): Floor | null {
+        return this.floors[number] || null
+    }
+
+    getTile(floorNumber: number, x: number, y: number): Tile | null {
+        const floor = this.getFloor(floorNumber)
+        if (!floor) return null
+        return floor.getTile(x, y)
+    }
+
+    getTileObject(floorNumber: number, x: number, y: number): TileObject | null {
+        const tile = this.getTile(floorNumber, x, y)
+        if (!tile) return null
+        return tile.tile_object
+    }
 
     getStats(): Omit<Run, "floors"> {
         return { ...structuredClone(this), floors: undefined }
     }
+
+    async takeDamage(damage: number): Promise<void> {
+        if (this.party_hp <= 0) {
+            await this.onDeath()
+        } else {
+            await this.sync()
+            hub.sendToUser(this.user_id, {
+                event: GameEvent.RUN_STATS_UPDATED,
+                payload: {
+                    run_stats: this.getStats(),
+                },
+            })
+        }
+    }
+
+    async onDeath(): Promise<void> {}
 }

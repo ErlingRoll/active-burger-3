@@ -1,5 +1,5 @@
 import { ItemDao } from "../../database/item-dao.js"
-import { hub } from "../../index.js"
+import { gamestate, hub } from "../../index.js"
 import { Run } from "../../models/run.js"
 import { UserService } from "../../services/user-service.js"
 import { GameEvent } from "../types.js"
@@ -19,7 +19,7 @@ export class UserActions {
 
         hub.addUser(clientId, user)
 
-        const activeRun: Run | null = await Run.loadActiveByUserId(user.id)
+        const activeRun: Run | null = await gamestate.getActiveRunByUserId(user.id)
 
         hub.sendToClient(clientId, {
             event: GameEvent.LOGIN_SUCCESS,

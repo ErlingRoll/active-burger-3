@@ -1,11 +1,15 @@
 import { TileGenerator } from "../generators/tile/tile-generator.js"
 import { database } from "../index.js"
 import { TileObject } from "../models/tile-object.js"
+import { ClassProps } from "../utils/type-utils.js"
 import { TileObjectSchema } from "./types/schemas.js"
 
 export class TileObjectDao {
-    static async createTileObject(schema: TileObjectSchema): Promise<TileObject | null> {
-        const res = await database.from("tile_object").insert(schema).select()
+    static async createTileObject(schema: Partial<ClassProps<TileObject>>): Promise<TileObject | null> {
+        const res = await database
+            .from("tile_object")
+            .insert(schema as TileObjectSchema)
+            .select()
 
         if (res.error) {
             throw new Error(`Failed to create tile object: ${res.error.message}`)
@@ -25,7 +29,8 @@ export class TileObjectDao {
     }
 
     static async updateTileObject(tileObject: TileObject): Promise<TileObject | null> {
-        const res = await database.from("tile_object").update(tileObject).eq("id", tileObject.id).select()
+        const { tile, ...updateData } = tileObject
+        const res = await database.from("tile_object").update(updateData).eq("id", tileObject.id).select()
 
         if (res.error) {
             throw new Error(`Failed to update tile object with ID ${tileObject.id}: ${res.error.message}`)
