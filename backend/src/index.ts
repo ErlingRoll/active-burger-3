@@ -34,8 +34,6 @@ export const hub = new GameHub()
 
 wss.on("connection", async (ws) => {
     await hub.addClient(ws)
-
-    ws.on("pong", () => hub.handlePong(ws))
 })
 
 const HEARTBEAT_MS = 60_000

@@ -17,7 +17,7 @@ export class UserActions {
             return
         }
 
-        hub.addUser(clientId, user)
+        hub.addUser(clientId, user.id)
 
         const activeRun: Run | null = await gamestate.getActiveRunByUserId(user.id)
 

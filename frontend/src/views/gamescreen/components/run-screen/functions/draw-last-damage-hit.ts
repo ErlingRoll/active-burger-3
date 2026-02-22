@@ -63,9 +63,7 @@ export function drawLastDamageHit(damageHits: HitResult[]) {
 
 // For each hit. Make the monster bob up and down slightly, and maybe add a red flash to the monster tile?
 export function playMonsterAttackAnimation(hitResults: HitResult[]) {
-    console.log("Playing monster attack animation for hits:", hitResults)
     for (const hit of hitResults) {
-        console.log("Processing hit:", hit)
         const targetCell = document.getElementById(`tile-${hit.tile.x}_${hit.tile.y}`)
         if (!targetCell) {
             console.warn("Could not find target cell for hit:", hit)

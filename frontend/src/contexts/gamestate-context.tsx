@@ -24,7 +24,6 @@ export type HitResult = {
 
 export type GamestateContextType = {
     gameCon: WebSocket | null
-    setGameCon: Dispatch<SetStateAction<any>>
     logout: () => void
     log: string[]
     damageHits: HitResult[]

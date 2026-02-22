@@ -1,11 +1,12 @@
 import type WebSocket from "ws"
 import { SimpleRateLimiter } from "./rate-limit.js"
-import { ClientId, ServerMessage } from "./types.js"
+import { ClientId, ServerMessage, UserId } from "./types.js"
 import { safeStringify } from "../utils/string-utils.js"
 
 export class ClientConnection {
-    public readonly id: ClientId
     public readonly ws: WebSocket
+    public id: ClientId
+    public userId: UserId | null = null
 
     // Marked true when we receive pong or any message; used to detect dead peers
     public isAlive = true

@@ -1,24 +1,23 @@
 import type WebSocket from "ws"
 import { randomUUID } from "node:crypto"
 import { ClientConnection } from "./client-connections.js"
-import { ClientId, ClientMessage, GameEvent, ServerMessage, UserAction } from "./types.js"
+import { ClientId, ClientMessage, GameEvent, ServerMessage, UserAction, UserId } from "./types.js"
 import { User } from "../models/user.js"
 import { UserActions } from "./actions/user-actions.js"
 import { RunActions } from "./actions/run-actions.js"
 import { TileActions } from "./actions/tile-actions.js"
 import { ItemActions } from "./actions/item-actions.js"
+import { gamestate } from "../index.js"
 
 export class GameHub {
-    private readonly clientsById = new Map<ClientId, ClientConnection>()
-    private readonly idBySocket = new Map<WebSocket, ClientId>()
-    private readonly userClientMap = new Map<ClientId, User>()
+    private readonly clientIdConnectionMap = new Map<ClientId, ClientConnection>()
+    private readonly userClientMap = new Map<UserId, ClientId>()
 
     async addClient(ws: WebSocket): Promise<void> {
         const clientId = randomUUID()
         const conn = new ClientConnection(clientId, ws)
 
-        this.clientsById.set(clientId, conn)
-        this.idBySocket.set(ws, clientId)
+        this.clientIdConnectionMap.set(clientId, conn)
 
         // Wire socket events
         ws.on("message", (data) => this.onRawMessage(conn, data))
@@ -33,48 +32,54 @@ export class GameHub {
         })
     }
 
-    addUser(clientId: ClientId, user: User): void {
-        // const existingUser = this.userClientMap.get(clientId)
-        // if (existingUser) {
-        //     console.log(`Client ${clientId} already has user ${existingUser.id}, replacing with ${user.id}`)
-        // } else {
-        //     console.log(`Associating client ${clientId} with user ${user.id}`)
-        // }
+    addUser(clientId: ClientId, userId: UserId): void {
+        for (const [existingId, existingConnection] of this.clientIdConnectionMap.entries()) {
+            if (userId === existingConnection.userId) {
+                // console.log(
+                //     `User ${userId} is already logged in on client ${existingId}, moving to new client ${clientId}`
+                // )
+                // Remove the old client connection
+                this.clientIdConnectionMap.delete(existingId)
+                // Remove the old user-client mapping
+                this.userClientMap.delete(userId)
 
-        this.userClientMap.set(clientId, user)
-    }
+                // Create a new client connection for the same user
+                this.clientIdConnectionMap.set(clientId, existingConnection)
+                return
+            }
+        }
 
-    getUserByClientId(clientId: ClientId): User {
-        return this.userClientMap.get(clientId)!
+        const conn = this.clientIdConnectionMap.get(clientId)
+        if (!conn) {
+            // console.error(`Trying to add user ${userId} to non-existent client ${clientId}`)
+            return
+        }
+        conn.userId = userId
+        this.userClientMap.set(userId, clientId)
+        console.log(`Total clients: ${this.clientIdConnectionMap.size}, total users: ${this.userClientMap.size}`)
     }
 
     getClientIdByUserId(userId: string): ClientId | null {
-        for (const [clientId, user] of this.userClientMap.entries()) {
-            if (user.id === userId) {
-                return clientId
-            }
-        }
-        return null
+        return this.userClientMap.get(userId) ?? null
     }
 
     logoutClient(clientId: ClientId): void {
         this.userClientMap.delete(clientId)
-        const conn = this.clientsById.get(clientId)
+        const conn = this.clientIdConnectionMap.get(clientId)
         if (!conn) return
-        this.idBySocket.delete(conn.ws)
-        this.clientsById.delete(clientId)
+        this.clientIdConnectionMap.delete(clientId)
     }
 
     /** Broadcast a server message to all connected clients */
     broadcast(msg: ServerMessage): void {
-        for (const conn of this.clientsById.values()) {
+        for (const conn of this.clientIdConnectionMap.values()) {
             conn.send(msg)
         }
     }
 
     /** Send a server message to one client */
     sendToClient(clientId: ClientId, msg: ServerMessage): boolean {
-        const conn = this.clientsById.get(clientId)
+        const conn = this.clientIdConnectionMap.get(clientId)
         if (!conn) return false
         return conn.send(msg)
     }
@@ -82,7 +87,7 @@ export class GameHub {
     sendToUser(userId: string, msg: ServerMessage): boolean {
         const clientId = this.getClientIdByUserId(userId)
         if (!clientId) return false
-        const conn = this.clientsById.get(clientId)
+        const conn = this.clientIdConnectionMap.get(clientId)
         if (!conn) return false
         return conn.send(msg)
     }
@@ -101,7 +106,7 @@ export class GameHub {
 
     /** Heartbeat: ping all clients, and drop dead ones */
     heartbeat(): void {
-        for (const [id, conn] of this.clientsById.entries()) {
+        for (const [id, conn] of this.clientIdConnectionMap.entries()) {
             if (!conn.isAlive) {
                 conn.close(1001, "heartbeat timeout")
                 this.logoutClient(id)
@@ -117,15 +122,7 @@ export class GameHub {
         }
     }
 
-    /** Mark client alive on pong */
-    handlePong(ws: WebSocket): void {
-        const id = this.idBySocket.get(ws)
-        if (!id) return
-        const conn = this.clientsById.get(id)
-        if (conn) conn.isAlive = true
-    }
-
-    private onRawMessage(conn: ClientConnection, data: WebSocket.RawData): void {
+    private async onRawMessage(conn: ClientConnection, data: WebSocket.RawData): Promise<void> {
         conn.isAlive = true
 
         // Rate-limit by message
@@ -154,13 +151,13 @@ export class GameHub {
         //   return;
         // }
 
-        this.route(conn.id, parsedJson)
+        await this.route(conn.id, parsedJson)
     }
 
-    private route(clientId: ClientId, msg: ClientMessage): void {
+    private async route(clientId: ClientId, msg: ClientMessage): Promise<void> {
         const action = msg.action as UserAction
         const payload = msg.payload ?? ({} as any)
-        const user = this.getUserByClientId(clientId)
+        const user = await gamestate.getUserById(this.clientIdConnectionMap.get(clientId)?.userId ?? "")
 
         // console.log(`Received action ${action} from client ${clientId} (user ${user?.id ?? "none"})`)
 

@@ -98,7 +98,7 @@ export const GamestateProvider = ({ children }: { children: any }) => {
                 setRun(payload.run)
                 break
             case GameEvent.RUN_STATS_UPDATED:
-                setRunStats((prev) => ({ ...prev, ...payload.run_stats }))
+                setRunStats((prev) => ({ ...(prev ?? {}), ...payload.run_stats }))
                 break
             case GameEvent.RUN_ENDED:
                 setRun(null)
@@ -120,8 +120,7 @@ export const GamestateProvider = ({ children }: { children: any }) => {
                 updateCharacter(updatedCharacter)
                 break
             case GameEvent.MONSTER_DAMAGED:
-                let _damageHits = damageHits.slice(0, 100)
-                setDamageHits([payload, ..._damageHits])
+                setDamageHits((prev) => [payload, ...prev.slice(0, 100)])
                 break
             case GameEvent.PARTY_DAMAGED:
                 console.log("Received PARTY_DAMAGED event with hits:", payload.hit_results)
@@ -151,34 +150,13 @@ export const GamestateProvider = ({ children }: { children: any }) => {
     }
 
     function on_login_success(data: { user: User; run: Run }) {
+        console.log("Logged in with user:", data.user)
         const user = data.user
         const run = data.run
         setCharacters(user.characters)
-        setRun(run)
-        setUser(user)
+        setRun(() => run)
+        setUser(() => user)
     }
-
-    useEffect(() => {
-        if (!gameCon) return
-        gameCon.onmessage = (event: any) => {
-            const data = event.data
-            let parsedData = null
-            try {
-                parsedData = JSON.parse(data)
-            } catch (e) {
-                console.error("Error parsing WebSocket message:", data)
-                return
-            }
-            const messageEvent = parsedData.event
-            if (!messageEvent) {
-                console.error("Received WebSocket message without event:", parsedData)
-                return
-            }
-
-            // Handle events
-            on_event(messageEvent, parsedData.payload, parsedData.log)
-        }
-    }, [gameCon])
 
     function tryLogin() {
         const loginInfo = {
@@ -219,7 +197,6 @@ export const GamestateProvider = ({ children }: { children: any }) => {
             // Handle events
             on_event(messageEvent, parsedData.payload, parsedData.log)
         }
-
         tryLogin()
     }, [gameCon, connecting])
 
@@ -254,7 +231,6 @@ export const GamestateProvider = ({ children }: { children: any }) => {
         <GamestateContext.Provider
             value={{
                 gameCon,
-                setGameCon,
                 reconnect: connect,
                 logout,
                 log,

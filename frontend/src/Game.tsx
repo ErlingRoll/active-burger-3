@@ -9,9 +9,6 @@ function Game() {
     const { externalUser } = useContext(UserContext)
     const { gameCon, user } = useGamestate()
 
-    const urlPaths = window.location.pathname.split("/")
-    const mainPath = urlPaths[1].toLocaleLowerCase()
-
     if (!externalUser || !gameCon || !user) {
         return <Login />
     }
