@@ -13,19 +13,6 @@ function Game() {
         return <Login />
     }
 
-    // if (!gamestate.render_objects[character.id]) {
-    //     return (
-    //         <div className="absolute top-0 left-0 w-full h-full center-col text-light font-bold">
-    //             <p className="mb-2">Loading game...</p>
-    //             <p>If this takes too long, please try refreshing the page.</p>
-    //             <p className="mb-2">If that doesn't work contact Erling</p>
-    //             <p>WebSocket status: {gameCon ? "Connected" : "Disconnected"}</p>
-    //             <p>gamestate: {gamestate ? "Yes" : "No"}</p>
-    //             <p>Render objects: {gamestate ? Object.keys(gamestate.render_objects).length : "null"}</p>
-    //         </div>
-    //     )
-    // }
-
     return <Gamescreen />
 }
 

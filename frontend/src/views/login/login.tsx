@@ -72,9 +72,9 @@ const Login = () => {
                     {loading || code || user ? (
                         <div className="relative flex flex-col justify-center items-center">
                             <p className="mb-2">Logging in</p>
-                            <p>External: {externalUser}</p>
+                            <p>External: {externalUser?.id}</p>
                             <p>WS Connection: {gameCon?.OPEN}</p>
-                            <p>User ID: {user.id}</p>
+                            <p>User ID: {user?.id}</p>
                             <ThreeDot color="#ed7d27" size="medium" text="" textColor="" />
                         </div>
                     ) : (

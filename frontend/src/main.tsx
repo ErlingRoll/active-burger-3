@@ -10,18 +10,4 @@ export const textures: Record<string, any> = import.meta.glob("/src/assets/textu
 
 const rootEl = document.getElementById("root")!
 const root = createRoot(rootEl)
-
-let mountKey = 0
-
-function render() {
-    root.render(<App key={mountKey} />)
-}
-
-render()
-
-if (import.meta.hot) {
-    import.meta.hot.on("vite:beforeUpdate", () => {
-        mountKey += 1 // forces full React remount
-        render()
-    })
-}
+root.render(<App />)
