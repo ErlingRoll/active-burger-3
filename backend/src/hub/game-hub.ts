@@ -10,7 +10,7 @@ import { ItemActions } from "./actions/item-actions.js"
 
 export class GameHub {
     private readonly clientsById = new Map<ClientId, ClientConnection>()
-    private readonly idBySocket = new WeakMap<WebSocket, ClientId>()
+    private readonly idBySocket = new Map<WebSocket, ClientId>()
     private readonly users = new Map<ClientId, User>()
 
     async addClient(ws: WebSocket): Promise<void> {
@@ -23,7 +23,7 @@ export class GameHub {
         // Wire socket events
         ws.on("message", (data) => this.onRawMessage(conn, data))
         ws.on("close", () => this.logoutClient(clientId))
-        ws.on("error", () => this.logoutClient(clientId)) // conservative
+        ws.on("error", () => this.logoutClient(clientId))
 
         // Send welcome with initial state
         conn.send({
@@ -34,6 +34,12 @@ export class GameHub {
     }
 
     addUser(clientId: ClientId, user: User): void {
+        // First check if any other client is logged in as this user, and if so, move the user to the new client and disconnect the old one
+        const existingClientId = this.getClientIdByUserId(user.id)
+        if (existingClientId && existingClientId !== clientId) {
+            this.logoutClient(existingClientId)
+        }
+
         this.users.set(clientId, user)
     }
 

@@ -40,6 +40,9 @@ export class TileObject implements BaseSchema, TileObjectSchema {
     }
 
     async sync(): Promise<void> {
+        if (this.deleted) {
+            TileObjectDao.deleteById(this.id)
+        }
         TileObjectDao.updateTileObject(this)
     }
 

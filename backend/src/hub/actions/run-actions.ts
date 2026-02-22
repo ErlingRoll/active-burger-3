@@ -1,10 +1,8 @@
-import { TileDao } from "../../database/tile-dao.js"
 import { OptionGenerator } from "../../generators/run/option-generator.js"
 import { RunGenerator } from "../../generators/run/run-generator.js"
 import { gamestate, hub } from "../../index.js"
 import { RunOption } from "../../models/run-choice/run-option.js"
 import { User } from "../../models/user.js"
-import { safeStringify } from "../../utils/string-utils.js"
 import { GameEvent } from "../types.js"
 
 export interface selectedRunChoicePayload {
@@ -15,8 +13,15 @@ export interface selectedRunChoicePayload {
 export class RunActions {
     static async startRun({ clientId, payload }: { clientId: string; payload: any }): Promise<void> {
         const user = hub.getUserByClientId(clientId)
-        const run = await RunGenerator.startRun(user)
 
+        await RunGenerator.startRun(user)
+
+        let run = null
+        for (let i = 0; i < 20; i++) {
+            run = await gamestate.getActiveRunByUserId(user.id)
+            if (run) break
+            await new Promise((resolve) => setTimeout(resolve, 500))
+        }
         if (!run) {
             hub.sendClientError(clientId, "Failed to start run.")
             return

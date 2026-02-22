@@ -92,13 +92,14 @@ export class TileGenerator {
             y,
             tile_type: tileType,
             hidden,
-        }).then((tileSchema) => new Tile(tileSchema))
+        })
+        tile.floor = floor
 
         if (hasObject) {
             switch (tileObjectType) {
                 case TileObjectType.EXIT:
                 case TileObjectType.CHEST:
-                    tile.tile_object = await TileObjectDao.createTileObject({
+                    const chestObject = await TileObjectDao.createTileObject({
                         tile_id: tile.id,
                         tile_object_type: tileObjectType,
                         rarity: Rarity.COMMON,
@@ -107,9 +108,13 @@ export class TileGenerator {
                         hp: null,
                         max_hp: null,
                         damage: null,
-                    }).then((tileObjectSchema) =>
-                        tileObjectSchema ? this.tileObjectFromModel(tileObjectSchema) : null
-                    )
+                    })
+                    if (!chestObject) {
+                        console.error("Failed to create chest tile object for tile at", x, y)
+                        break
+                    }
+                    chestObject.tile = tile
+                    tile.tile_object = chestObject
                     break
                 case TileObjectType.MONSTER:
                     tile.tile_object = await MonsterGenerator.generateMonster({ tile })

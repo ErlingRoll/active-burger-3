@@ -2,7 +2,7 @@ import { RunDao } from "../database/run-dao.js"
 import { BaseSchema, RunSchema } from "../database/types/schemas.js"
 import { FloorGenerator } from "../generators/floor/floor-generator.js"
 import { GameEvent } from "../hub/types.js"
-import { hub } from "../index.js"
+import { gamesync, hub } from "../index.js"
 import { ClassProps } from "../utils/type-utils.js"
 import { Floor } from "./floor.js"
 import { TileObject } from "./tile-object.js"
@@ -53,7 +53,7 @@ export class Run implements BaseSchema, RunSchema {
     async end(user: User): Promise<void> {
         this.active = false
         await user.addEssence(this.essence)
-        await this.sync()
+        gamesync.markDirty(this)
     }
 
     async exitFloor(): Promise<void> {
@@ -62,7 +62,7 @@ export class Run implements BaseSchema, RunSchema {
             throw new Error(`Cannot exit floor: user with ID ${this.user_id} not found in hub`)
         }
         const newFloor = await FloorGenerator.generateFloor({ user: user, run: this })
-        this.floors[newFloor.number] = await newFloor
+        this.floors[newFloor.number] = newFloor
         await this.sync()
     }
 

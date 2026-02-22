@@ -1,6 +1,7 @@
 import { FloorDao } from "../../database/floor-dao.js"
 import { Floor } from "../../models/floor.js"
 import { Run } from "../../models/run.js"
+import { Tile } from "../../models/tile.js"
 import { User } from "../../models/user.js"
 import { TileGenerator } from "../tile/tile-generator.js"
 
@@ -18,6 +19,10 @@ export class FloorGenerator {
         })
 
         newFloor.tiles = await TileGenerator.generateFloorTiles({ user, run, floor: newFloor })
+
+        Object.values(newFloor.tiles).forEach((tile) => {
+            tile.floor = newFloor
+        })
 
         return newFloor
     }

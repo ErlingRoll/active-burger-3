@@ -44,6 +44,7 @@ export class Tile implements BaseSchema, TileSchema {
     async deleteTileObject(): Promise<void> {
         if (!this.tile_object) return
         this.tile_object = null
+        this.tile_type = TileType.EMPTY
         gamesync.markDirty(this)
     }
 
