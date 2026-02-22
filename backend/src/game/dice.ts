@@ -21,7 +21,22 @@ export class Dice {
         return defaultValue
     }
 
-    static roll(min: number, max: number): number {
-        return Math.floor(Math.random() * (max - min + 1)) + min
+    static roll({ min = 0, max, luck = 0 }: { min?: number; max: number; luck?: number }): number {
+        const isLucky = luck > 0
+        const isUnlucky = luck < 0
+
+        let roll = Math.random() * (max - min) + min
+
+        if (isLucky) {
+            const luckyRoll = Math.random() * (max - min) + min
+            roll = Math.max(roll, luckyRoll)
+        }
+
+        if (isUnlucky) {
+            const unluckyRoll = Math.random() * (max - min) + min
+            roll = Math.min(roll, unluckyRoll)
+        }
+
+        return Math.floor(roll)
     }
 }

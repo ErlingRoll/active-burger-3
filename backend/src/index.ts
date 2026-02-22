@@ -32,7 +32,7 @@ wss.on("connection", async (ws) => {
     ws.on("pong", () => hub.handlePong(ws))
 })
 
-const HEARTBEAT_MS = 30_000
+const HEARTBEAT_MS = 60_000
 setInterval(() => hub.heartbeat(), HEARTBEAT_MS)
 
 console.info(`WebSocket server listening on ws://localhost:${PORT}`)

@@ -1,13 +1,12 @@
 import { Fragment, useContext } from "react"
 import { CharactersContext } from "../../../../../contexts/characters-context"
 import { UserContext } from "../../../../../contexts/user-context"
-import { GamestateContext } from "../../../../../contexts/gamestate-context"
 import { UIContext } from "../../../../../contexts/ui-context"
 import { SettingsContext } from "../../../../../contexts/settings-context"
+import { useGamestate } from "@/contexts/gamestate-context"
 
 const SettingsMenu = () => {
-    const { admin } = useContext(UserContext)
-    const { logout } = useContext(GamestateContext)
+    const { user, logout } = useGamestate()
 
     const { showGrid, setShowGrid, adminMode, setAdminMode } = useContext(UIContext)
     const { setSettingsOpen } = useContext(SettingsContext)
@@ -18,7 +17,7 @@ const SettingsMenu = () => {
 
     return (
         <div className="center-col items-end z-200 pointer-events-auto">
-            {admin && (
+            {user?.admin && (
                 <Fragment>
                     <button
                         className={`min-w-28 px-4 pt-2 pb-3 rounded text-light text-sm font-bold bg-info`}

@@ -71,6 +71,8 @@ export class Run implements BaseSchema, RunSchema {
         await this.sync()
     }
 
+    async onDeath(): Promise<void> {}
+
     getStats(): Omit<Run, "floors"> {
         return { ...structuredClone(this), floors: undefined }
     }

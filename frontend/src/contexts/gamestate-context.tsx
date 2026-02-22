@@ -28,6 +28,12 @@ export const gameWebsocketUrl = import.meta.env.VITE_GAME_WS_URL
 
 export type LocalAction = "open_shop"
 
+export type HitResult = {
+    monsterId: string
+    damage: number
+    critical: boolean
+}
+
 type GamestateContextType = {
     gameCon: WebSocket | null
     setGameCon: Dispatch<SetStateAction<any>>
@@ -35,7 +41,7 @@ type GamestateContextType = {
     setGamestate: Dispatch<SetStateAction<Gamestate | null>>
     logout: () => void
     log: string[]
-    damageHits: any[]
+    damageHits: HitResult[]
     chatMessages: ChatMessage[]
     terrain: { [pos: string]: Terrain[] }
     reconnect: () => void
@@ -56,35 +62,13 @@ type GamestateContextType = {
     setRunChoices: Dispatch<SetStateAction<RunChoice[]>>
 }
 
-export const GamestateContext = createContext<GamestateContextType>({
-    gameCon: null,
-    setGameCon: (gameCon: any) => {},
-    gamestate: null,
-    setGamestate: (game: any) => {},
-    logout: () => {},
-    log: [],
-    damageHits: [],
-    chatMessages: [],
-    terrain: {},
-    reconnect: () => {},
-    realm: null,
-    setRealm: (realm: Realm) => {},
-    realmSettings: {
-        background: "terrain/grass/grass",
-    },
-    user: null,
-    setUser: (user: any) => {},
-    items: [],
-    setItems: (items: any) => {},
-    run: null,
-    setRun: (run: any) => {},
-    floors: [],
-    setFloors: (floors: any) => {},
-    runStats: null,
-    setRunStats: (stats: any) => {},
-    runChoices: [],
-    setRunChoices: (choices: any) => {},
-})
+const GamestateContext = createContext<GamestateContextType | null>(null)
+
+export function useGamestate() {
+    const ctx = useContext(GamestateContext)
+    if (!ctx) throw new Error("useGamestate must be used within <GameProvider>")
+    return ctx
+}
 
 export const GameProvider = ({ children }: { children: any }) => {
     const [gameCon, setGameCon] = useState<WebSocket | null>(null)
@@ -95,7 +79,7 @@ export const GameProvider = ({ children }: { children: any }) => {
         background: "terrain/grass/grass",
     })
     const [log, setLog] = useState<string[]>([])
-    const [damageHits, setDamageHits] = useState<any[]>([])
+    const [damageHits, setDamageHits] = useState<HitResult[]>([])
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
 
     const [connecting, setConnecting] = useState<boolean>(false)
@@ -166,6 +150,7 @@ export const GameProvider = ({ children }: { children: any }) => {
         if (log) setLog((prevLog) => [...log, ...prevLog])
 
         console.log("Received event:", event, payload)
+        // console.log("Run choice:", GameEvent.RUN_CHOICE)
 
         switch (event) {
             case GameEvent.LOGIN_SUCCESS:
@@ -184,6 +169,7 @@ export const GameProvider = ({ children }: { children: any }) => {
                 setRun(null)
                 break
             case GameEvent.RUN_CHOICE:
+                console.log("Received run choice:", payload.runChoice)
                 setRunChoices((prev) => [payload.runChoice, ...prev])
                 break
             case GameEvent.TILE_UPDATED:
@@ -198,6 +184,10 @@ export const GameProvider = ({ children }: { children: any }) => {
             case GameEvent.CHARACTER_UPDATED:
                 const updatedCharacter = payload.character
                 updateCharacter(updatedCharacter)
+                break
+            case GameEvent.MONSTER_DAMAGED:
+                let _damageHits = damageHits.slice(0, 100)
+                setDamageHits([payload, ..._damageHits])
                 break
 
             // Logging events
@@ -231,7 +221,7 @@ export const GameProvider = ({ children }: { children: any }) => {
     }
 
     useEffect(() => {
-        if (!characters || !gameCon) return
+        if (!gameCon) return
         gameCon.onmessage = (event: any) => {
             const data = event.data
             let parsedData = null
@@ -250,7 +240,7 @@ export const GameProvider = ({ children }: { children: any }) => {
             // Handle events
             on_event(messageEvent, parsedData.payload, parsedData.log)
         }
-    }, [characters, gameCon])
+    }, [gameCon])
 
     function tryLogin() {
         const loginInfo = {

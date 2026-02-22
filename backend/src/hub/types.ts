@@ -7,6 +7,18 @@ export type HubState = {
     players: Map<UserId, User>
 }
 
+export type ServerMessage = {
+    event: GameEvent
+    payload?: { [key: string]: any }
+    log?: String[]
+}
+
+export type ClientMessage = {
+    userId: UserId
+    action: UserAction
+    payload?: { [key: string]: any }
+}
+
 export enum UserAction {
     LOGIN = "login",
     START_RUN = "start_run",
@@ -30,16 +42,11 @@ export enum GameEvent {
     RUN_CHOICE = "run_choice",
     CHARACTER_UPDATED = "character_updated",
     USER_UPDATED = "user_updated",
+    MONSTER_DAMAGED = "monster_damaged",
 }
 
-export type ServerMessage = {
-    event: GameEvent
-    payload?: { [key: string]: any }
-    log?: String[]
-}
-
-export type ClientMessage = {
-    userId: UserId
-    action: UserAction
-    payload?: { [key: string]: any }
+export type HitResult = {
+    monsterId: string
+    damage: number
+    critical: boolean
 }

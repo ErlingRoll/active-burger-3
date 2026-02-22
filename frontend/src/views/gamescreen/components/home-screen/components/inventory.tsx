@@ -1,14 +1,14 @@
-import { Fragment, useContext, useState } from "react"
-import { GamestateContext } from "../../../../../contexts/gamestate-context"
+import { Fragment } from "react"
+import { useGamestate } from "@/contexts/gamestate-context"
+import { Item } from "@/game/objects"
+import { usePlayer } from "@/contexts/player-context"
 import ItemTooltip from "../../game-ui/components/item-tooltip"
-import { Item } from "../../../../../game/objects"
-import { PlayerContext } from "../../../../../contexts/player-context"
 
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
 const Inventory = () => {
-    const { items } = useContext(GamestateContext)
-    const { gameActions } = useContext(PlayerContext)
+    const { items } = useGamestate()
+    const { gameActions } = usePlayer()
 
     function useItem(item: Item) {
         gameActions.useItem(item.id)

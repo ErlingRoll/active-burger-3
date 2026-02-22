@@ -3,11 +3,11 @@ import { useContext } from "react"
 import Gamescreen from "./views/gamescreen/gamescreen"
 import { UserContext } from "./contexts/user-context"
 import Login from "./views/login/login"
-import { GamestateContext } from "./contexts/gamestate-context"
+import { useGamestate } from "./contexts/gamestate-context"
 
 function Game() {
     const { externalUser } = useContext(UserContext)
-    const { gameCon, user } = useContext(GamestateContext)
+    const { gameCon, user } = useGamestate()
 
     const urlPaths = window.location.pathname.split("/")
     const mainPath = urlPaths[1].toLocaleLowerCase()

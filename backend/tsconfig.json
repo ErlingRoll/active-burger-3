@@ -12,8 +12,6 @@
         "noUncheckedIndexedAccess": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "sourceMap": true,
-        "inlineSources": true,
     },
     "include": [
         "src"

@@ -202,53 +202,6 @@ export type Database = {
           },
         ]
       }
-      monster: {
-        Row: {
-          created_at: string
-          damage: number
-          hp: number
-          id: string
-          max_hp: number
-          name: string
-          rarity: string
-          texture: string
-          tile_id: string | null
-          tile_object_type: string
-        }
-        Insert: {
-          created_at?: string
-          damage: number
-          hp: number
-          id?: string
-          max_hp: number
-          name: string
-          rarity: string
-          texture: string
-          tile_id?: string | null
-          tile_object_type?: string
-        }
-        Update: {
-          created_at?: string
-          damage?: number
-          hp?: number
-          id?: string
-          max_hp?: number
-          name?: string
-          rarity?: string
-          texture?: string
-          tile_id?: string | null
-          tile_object_type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "monster_tile_id_fkey"
-            columns: ["tile_id"]
-            isOneToOne: false
-            referencedRelation: "tile"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       run: {
         Row: {
           active: boolean
@@ -360,6 +313,7 @@ export type Database = {
         Row: {
           created_at: string
           damage: number | null
+          game_id: string | null
           hp: number | null
           id: string
           max_hp: number | null
@@ -372,6 +326,7 @@ export type Database = {
         Insert: {
           created_at?: string
           damage?: number | null
+          game_id?: string | null
           hp?: number | null
           id?: string
           max_hp?: number | null
@@ -384,6 +339,7 @@ export type Database = {
         Update: {
           created_at?: string
           damage?: number | null
+          game_id?: string | null
           hp?: number | null
           id?: string
           max_hp?: number | null

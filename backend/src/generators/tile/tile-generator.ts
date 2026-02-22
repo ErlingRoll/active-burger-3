@@ -12,6 +12,8 @@ import { TileObjectDao } from "../../database/tile-object-dao.js"
 import { capitalize } from "../../utils/string-utils.js"
 import { Chest } from "../../models/chest.js"
 import { Exit } from "../../models/exit.js"
+import { MonsterGenerator } from "../monster/monster-generator.js"
+import { Monster } from "../../models/monster.js"
 
 const tileWeights = {
     [TileType.EMPTY]: 50,
@@ -21,6 +23,7 @@ const tileWeights = {
 const tileObjectWeights = {
     [TileObjectType.EXIT]: 1,
     [TileObjectType.CHEST]: 20,
+    [TileObjectType.MONSTER]: 20,
 }
 
 export class TileGenerator {
@@ -91,16 +94,26 @@ export class TileGenerator {
         }).then((tileSchema) => Tile.createFromSchema(tileSchema))
 
         if (hasObject) {
-            tile.tile_object = await TileObjectDao.createTileObject({
-                tile_id: tile.id,
-                tile_object_type: tileObjectType,
-                rarity: Rarity.COMMON,
-                texture: tileObjectType,
-                name: capitalize(tileObjectType),
-                hp: null,
-                max_hp: null,
-                damage: null,
-            }).then((tileObjectSchema) => (tileObjectSchema ? TileObject.fromSchema(tileObjectSchema) : null))
+            switch (tileObjectType) {
+                case TileObjectType.EXIT:
+                case TileObjectType.CHEST:
+                    tile.tile_object = await TileObjectDao.createTileObject({
+                        tile_id: tile.id,
+                        tile_object_type: tileObjectType,
+                        rarity: Rarity.COMMON,
+                        texture: tileObjectType,
+                        name: capitalize(tileObjectType),
+                        hp: null,
+                        max_hp: null,
+                        damage: null,
+                    }).then((tileObjectSchema) => (tileObjectSchema ? TileObject.fromSchema(tileObjectSchema) : null))
+                    break
+                case TileObjectType.MONSTER:
+                    tile.tile_object = await MonsterGenerator.generateMonster({ tile })
+                    break
+                default:
+                    console.error("Unknown tile object type:", tileObjectType)
+            }
         }
 
         return tile
@@ -143,6 +156,8 @@ export class TileGenerator {
                 return Chest.fromModel(tileObject as Chest)
             case TileObjectType.EXIT:
                 return Exit.fromModel(tileObject as Exit)
+            case TileObjectType.MONSTER:
+                return new Monster(tileObject)
             default:
                 console.error("Unknown tile object type:", tileObject.tile_object_type)
                 return null

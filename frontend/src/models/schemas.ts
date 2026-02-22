@@ -70,6 +70,7 @@ export interface TileObjectSchema {
     hp?: number | null
     max_hp?: number | null
     damage?: number | null
+    game_id?: string | null
 }
 
 export interface ItemSchema {

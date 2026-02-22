@@ -2,11 +2,10 @@ import { createContext, useContext, useEffect, useRef, useState } from "react"
 import { RenderObject } from "../models/object"
 import { UIContext } from "./ui-context"
 import GameActions from "./game-actions"
-import { UserContext } from "./user-context"
-import { GamestateContext } from "./gamestate-context"
 import { CharactersContext } from "./characters-context"
 import { Realm } from "../game/world"
 import { SettingsContext } from "./settings-context"
+import { useGamestate } from "@/contexts/gamestate-context"
 
 type PlayerContextType = {
     gameActions?: GameActions
@@ -15,16 +14,19 @@ type PlayerContextType = {
     setSelectedCell?: React.Dispatch<React.SetStateAction<{ x: number; y: number } | null>>
 }
 
-export const PlayerContext = createContext<PlayerContextType>({
-    gameActions: null,
-    localInteract: (object: RenderObject) => {},
-    selectedCell: null,
-    setSelectedCell: (cell: { x: number; y: number }) => {},
-})
+const PlayerContext = createContext<PlayerContextType | null>(null)
+
+export const usePlayer = () => {
+    const context = useContext(PlayerContext)
+    if (!context) {
+        throw new Error("usePlayer must be used within a PlayerProvider")
+    }
+    return context
+}
 
 export const PlayerProvider = ({ children }: { children: any }) => {
     const { characters: character } = useContext(CharactersContext)
-    const { user, gameCon, gamestate, terrain, reconnect, realm } = useContext(GamestateContext)
+    const { user, gameCon, gamestate, terrain, reconnect, realm } = useGamestate()
     const { shopOpen, setShopOpen, craftingBenchOpen, setCraftingBenchOpen } = useContext(UIContext)
     const { settings } = useContext(SettingsContext)
 

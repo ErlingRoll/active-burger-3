@@ -15,6 +15,7 @@ export class TileObject implements BaseSchema, TileObjectSchema {
     hp?: number | null
     max_hp?: number | null
     damage?: number | null
+    game_id?: string | null
 
     constructor(tileObject: {
         id: string
@@ -27,6 +28,7 @@ export class TileObject implements BaseSchema, TileObjectSchema {
         hp?: number | null
         max_hp?: number | null
         damage?: number | null
+        game_id?: string | null
     }) {
         this.id = tileObject.id
         this.created_at = tileObject.created_at
@@ -38,6 +40,7 @@ export class TileObject implements BaseSchema, TileObjectSchema {
         this.hp = tileObject.hp
         this.max_hp = tileObject.max_hp
         this.damage = tileObject.damage
+        this.game_id = tileObject.game_id
     }
 
     static fromSchema(tileObjectSchema: TileObjectSchema): TileObject {
@@ -52,7 +55,7 @@ export class TileObject implements BaseSchema, TileObjectSchema {
     }
 
     async sync(): Promise<void> {
-        throw new Error("Method not implemented.")
+        TileObjectDao.updateTileObject(this)
     }
 
     async delete(): Promise<void> {

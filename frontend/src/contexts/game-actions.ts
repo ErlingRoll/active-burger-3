@@ -2,16 +2,30 @@ import { RunOption, Tile } from "../game/objects"
 import { UserAction } from "./server-types"
 
 class GameActions {
+    ACTION_COOLDOWN_MS = 100
+
     user = null
     gameCon: WebSocket = null
     parentContext: any = null
     reconnect: () => void = null
+    lastAction = new Date().getTime()
 
     constructor(reconnect: () => void) {
         this.reconnect = reconnect
     }
 
     ready(action: any) {
+        const now = new Date().getTime()
+        if (now - this.lastAction < this.ACTION_COOLDOWN_MS) {
+            console.error("Action cooldown: " + action.action || "unknown", {
+                lastAction: this.lastAction,
+                now,
+                cooldown: this.ACTION_COOLDOWN_MS,
+            })
+            return false
+        }
+        this.lastAction = now
+
         const hasIdentity = Boolean(this.user)
         action.userId = this.user.id
         const ready = Boolean(hasIdentity && this.gameCon && this.gameCon.readyState === WebSocket.OPEN)
@@ -26,49 +40,51 @@ class GameActions {
         return ready
     }
 
-    send(action: any) {
-        if (!this.ready(action)) return
+    send(action: any): boolean {
+        if (!this.ready(action)) return false
+        console.log("Sending action:", action)
         this.gameCon.send(JSON.stringify(action))
+        return true
     }
 
-    startRun() {
+    startRun(): boolean {
         const action = {
             action: UserAction.START_RUN,
             payload: {},
         }
-        this.send(action)
+        return this.send(action)
     }
 
-    endRun() {
+    endRun(): boolean {
         const action = {
             action: UserAction.END_RUN,
             payload: {},
         }
-        this.send(action)
+        return this.send(action)
     }
 
-    activateTile(tile: Tile) {
+    activateTile(tile: Tile): boolean {
         const action = {
             action: UserAction.ACTIVATE_TILE,
             payload: { tile },
         }
-        this.send(action)
+        return this.send(action)
     }
 
-    selectRunOption(payload: { tile_id: string; option: RunOption }) {
+    selectRunOption(payload: { tile_id: string; option: RunOption }): boolean {
         const action = {
             action: UserAction.SELECT_RUN_OPTION,
             payload,
         }
-        this.send(action)
+        return this.send(action)
     }
 
-    useItem(itemId: string) {
+    useItem(itemId: string): boolean {
         const action = {
             action: UserAction.USE_ITEM,
             payload: { item_id: itemId },
         }
-        this.send(action)
+        return this.send(action)
     }
 }
 

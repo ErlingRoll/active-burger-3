@@ -1,20 +1,21 @@
 import { JSX, useContext, useEffect, useState } from "react"
-import { PlayerContext } from "../../../../contexts/player-context"
-import { GamestateContext } from "../../../../contexts/gamestate-context"
-import { Tile } from "../../../../game/objects"
-import { TileType } from "../../../../models/tiles"
+import { useGamestate } from "@/contexts/gamestate-context"
+import { Tile } from "@/game/objects"
+import { TileType } from "@/models/tiles"
 import { RiCopperCoinFill } from "react-icons/ri"
 import { FaDroplet, FaFireFlameCurved } from "react-icons/fa6"
-import { TileObjectType } from "../../../../models/constants"
-import dungeonBackground from "../../../../assets/textures/background/dungeon.webp"
+import { TileObjectType } from "@/models/constants"
+import dungeonBackground from "@/assets/textures/background/dungeon.webp"
 import { FaHeart } from "react-icons/fa"
 import RunChoiceModal from "./run-choice"
+import { drawLastDamageHit } from "./functions/draw-last-damage-hit"
+import { usePlayer } from "@/contexts/player-context"
 
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
 const RunScreen = () => {
-    const { run, setRun, runStats, floors } = useContext(GamestateContext)
-    const { gameActions } = useContext(PlayerContext)
+    const { run, setRun, runStats, floors, damageHits } = useGamestate()
+    const { gameActions } = usePlayer()
 
     const [tiles, setTiles] = useState<{ [pos: string]: Tile }>({})
 
@@ -26,18 +27,25 @@ const RunScreen = () => {
         // console.log("Tiles:", tiles)
     }, [run])
 
+    useEffect(() => {
+        drawLastDamageHit(damageHits)
+    }, [damageHits])
+
     function endRun() {
         gameActions.endRun()
     }
 
     function activeTile(tile: Tile): void {
-        if (!tile) return
+        if (!tile) return console.warn("Activated tile was not found")
         const tileType = tile.tile_type
         const tileObject = tile.tile_object
 
         if (tileType === TileType.LOADING) {
             return
         }
+
+        const activated = gameActions.activateTile(tile)
+        if (!activated) return console.warn("Tile did not activate")
 
         if (tile.hidden) {
             setRun((prevRun) => {
@@ -58,8 +66,6 @@ const RunScreen = () => {
             })
             setTiles(newTiles)
         }
-
-        gameActions.activateTile(tile)
     }
 
     const getPosKey = (x: number, y: number) => x + "_" + y
@@ -107,13 +113,35 @@ const RunScreen = () => {
                     backgroundImage: `url(${textures["/src/assets/textures/tile/default.webp"]})`,
                 }}
             >
-                {tileObject && (
+                {[TileObjectType.CHEST, TileObjectType.EXIT].includes(tileObject?.tile_object_type) && (
                     <div
                         style={{
                             backgroundImage: `url(${textures[`/src/assets/textures/tile-object/${tileObject.tile_object_type}/${tileObject.tile_object_type}-${tileObject.rarity}.webp`]})`,
                         }}
                         className="w-full h-full bg-contain"
                     />
+                )}
+                {[TileObjectType.MONSTER].includes(tileObject?.tile_object_type) && (
+                    <div className="w-full h-full p-1">
+                        <div className="h-[0.4rem] w-full border bg-gray-600 border-dark rounded overflow-hidden">
+                            <div
+                                className="h-full bg-red-500"
+                                style={{
+                                    width: `${(tileObject.hp / tileObject.max_hp) * 100}%`,
+                                }}
+                            />
+                        </div>
+                        <img
+                            id={`monster-${tileObject.id}`}
+                            src={
+                                textures[
+                                    `/src/assets/textures/tile-object/${tileObject.tile_object_type}/${tileObject.game_id}.webp`
+                                ]
+                            }
+                            alt="monster"
+                            className="w-full h-full object-contain"
+                        />
+                    </div>
                 )}
             </div>
         )
@@ -148,7 +176,7 @@ const RunScreen = () => {
                     </div>
                 </div>
                 <div className="absolute min-w-48 left-full ml-4 text-light text-1xl font-bold bg-[rgba(0,0,0,0.7)] p-4 shadow rounded">
-                    <h2 className="text-2xl mb-1 whitespace-nowrap">Floor: {run?.floors.length}</h2>
+                    <h2 className="text-2xl mb-1 whitespace-nowrap">Floor: {floors.length}</h2>
                     <div className="flex flex-row items-center gap-1">
                         <RiCopperCoinFill color="gold" /> {runStats?.gold}
                     </div>
@@ -163,10 +191,10 @@ const RunScreen = () => {
                         <div className="relative flex-1 bg-gray-700 rounded-full overflow-hidden border-2 border-dark">
                             <div
                                 className="bg-red-500 h-5"
-                                style={{ width: `${(run?.party_hp / run?.party_max_hp) * 100}%` }}
+                                style={{ width: `${(runStats?.party_hp / runStats?.party_max_hp) * 100}%` }}
                             />
                             <p className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
-                                {run?.party_hp} / {run?.party_max_hp}
+                                {runStats?.party_hp} / {runStats?.party_max_hp}
                             </p>
                         </div>
                     </div>
@@ -175,10 +203,10 @@ const RunScreen = () => {
                         <div className="relative flex-1 bg-gray-700 rounded-full overflow-hidden border-2 border-dark">
                             <div
                                 className="bg-blue-500 h-5"
-                                style={{ width: `${(run?.party_mana / run?.party_max_mana) * 100}%` }}
+                                style={{ width: `${(runStats?.party_mana / runStats?.party_max_mana) * 100}%` }}
                             />
                             <p className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
-                                {run?.party_mana} / {run?.party_max_mana}
+                                {runStats?.party_mana} / {runStats?.party_max_mana}
                             </p>
                         </div>
                     </div>

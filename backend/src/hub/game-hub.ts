@@ -164,6 +164,8 @@ export class GameHub {
         const payload = msg.payload ?? ({} as any)
         const user = this.getUserByClientId(clientId)
 
+        console.log(`Received action ${action} from client ${clientId} (user ${user?.id ?? "none"})`)
+
         switch (action) {
             case UserAction.LOGIN:
                 UserActions.handleLogin({ clientId, payload })

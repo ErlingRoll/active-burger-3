@@ -6,7 +6,6 @@ import { exchangeCodeForToken, fetchDiscordUser, initiateDiscordLogin } from "..
 import loginLogo from "../../assets/images/login_logo.png"
 import loginBackground from "../../assets/images/background.png"
 import { UserContext } from "../../contexts/user-context"
-import { GamestateContext } from "../../contexts/gamestate-context"
 import { ThreeDot } from "react-loading-indicators"
 
 const Login = () => {
@@ -15,7 +14,6 @@ const Login = () => {
     const { code } = Object.fromEntries(new URLSearchParams(window.location.search))
 
     const { externalUser: user, setExternalUser: setUser } = useContext(UserContext)
-    const { gameCon, setGameCon, gamestate: game, setGamestate: setGame } = useContext(GamestateContext)
 
     function login() {
         setLoading(true)

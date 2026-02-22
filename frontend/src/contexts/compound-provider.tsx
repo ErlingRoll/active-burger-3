@@ -1,10 +1,10 @@
 import { ReactNode } from "react"
-import { UserProvider } from "./user-context"
-import { CharactersProvider } from "./characters-context"
-import { GameProvider } from "./gamestate-context"
-import { UIProvider } from "./ui-context"
-import { PlayerProvider } from "./player-context"
-import { SettingsProvider } from "./settings-context"
+import { UserProvider } from "@/contexts/user-context"
+import { CharactersProvider } from "@/contexts/characters-context"
+import { GameProvider } from "@/contexts/gamestate-context"
+import { UIProvider } from "@/contexts/ui-context"
+import { PlayerProvider } from "@/contexts/player-context"
+import { SettingsProvider } from "@/contexts/settings-context"
 
 const CompoundProvider = ({ children }: { children: ReactNode }) => {
     const providers = [PlayerProvider, UIProvider, GameProvider, CharactersProvider, UserProvider, SettingsProvider]

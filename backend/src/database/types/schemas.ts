@@ -1,3 +1,4 @@
+import { MonsterName } from "../../generators/monster/menagerie.js"
 import { CharacterName, ItemType, Rarity, TileObjectType } from "../../models/constants.js"
 import { TileType } from "./tiles.js"
 
@@ -71,6 +72,11 @@ export interface TileObjectSchema {
     hp?: number | null
     max_hp?: number | null
     damage?: number | null
+    game_id?: string | null
+}
+
+export interface MonsterSchema extends TileObjectSchema {
+    game_id: MonsterName
 }
 
 export interface ItemSchema {

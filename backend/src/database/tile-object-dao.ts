@@ -24,6 +24,16 @@ export class TileObjectDao {
         return res.data ? TileGenerator.tileObjectFromModel(res.data as unknown as TileObject) : null
     }
 
+    static async updateTileObject(tileObject: TileObject): Promise<TileObject | null> {
+        const res = await database.from("tile_object").update(tileObject).eq("id", tileObject.id).select()
+
+        if (res.error) {
+            throw new Error(`Failed to update tile object with ID ${tileObject.id}: ${res.error.message}`)
+        }
+
+        return res.data ? TileGenerator.tileObjectFromModel(res.data[0] as unknown as TileObject) : null
+    }
+
     static async deleteById(id: string): Promise<void> {
         const res = await database.from("tile_object").delete().eq("id", id)
         if (res.error) {

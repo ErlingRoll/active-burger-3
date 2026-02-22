@@ -1,19 +1,20 @@
-import { useContext, useEffect, useState } from "react"
-import { GamestateContext } from "../../../../contexts/gamestate-context"
-import { LootRunOption, RunChoice } from "../../../../game/objects"
-import { LootType, Rarity, RunOptionType } from "../../../../models/constants"
-import { PlayerContext } from "../../../../contexts/player-context"
+import { useEffect, useState } from "react"
+import { useGamestate } from "@/contexts/gamestate-context"
+import { LootRunOption, RunChoice } from "@/game/objects"
+import { LootType } from "@/models/constants"
+import { usePlayer } from "@/contexts/player-context"
 
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
 const RunChoiceModal = () => {
-    const { runChoices, setRunChoices } = useContext(GamestateContext)
-    const { gameActions } = useContext(PlayerContext)
+    const { runChoices, setRunChoices } = useGamestate()
+    const { gameActions } = usePlayer()
 
     const [currentChoice, setCurrentChoice] = useState<RunChoice | null>(null)
 
     useEffect(() => {
-        // console.log(runChoices)
+        // NOT TRIGGERING
+        console.log("Updated run choices:", runChoices)
         if (runChoices.length > 0) {
             setCurrentChoice(runChoices[0])
         } else {

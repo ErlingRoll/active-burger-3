@@ -1,7 +1,6 @@
-import { useContext, useState } from "react"
-import { PlayerContext } from "../../../../contexts/player-context"
-import { GamestateContext } from "../../../../contexts/gamestate-context"
-import baseBackground from "../../../../assets/textures/background/base.webp"
+import { usePlayer } from "@/contexts/player-context"
+import { useGamestate } from "@/contexts/gamestate-context"
+import baseBackground from "@/assets/textures/background/base.webp"
 import { FaFireFlameCurved } from "react-icons/fa6"
 import Inventory from "./components/inventory"
 import Characters from "./components/characters"
@@ -9,8 +8,8 @@ import Characters from "./components/characters"
 const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
 
 const HomeScreen = () => {
-    const { user, items } = useContext(GamestateContext)
-    const { gameActions } = useContext(PlayerContext)
+    const { user, items } = useGamestate()
+    const { gameActions } = usePlayer()
 
     function startRun() {
         gameActions.startRun()

@@ -1,9 +1,8 @@
-import { Fragment } from "react"
-import "./App.css"
-import CompoundProvider from "./contexts/compound-provider"
+import "@/App.css"
+import CompoundProvider from "@/contexts/compound-provider"
 
-import Game from "./Game"
-import Settings from "./views/components/settings"
+import Game from "@/Game"
+import Settings from "@/views/components/settings"
 
 function App() {
     return (

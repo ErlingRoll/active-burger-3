@@ -3,4 +3,6 @@ import { createRoot } from "react-dom/client"
 import "./index.css"
 import App from "./App.tsx"
 
+export const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
+
 createRoot(document.getElementById("root")!).render(<App />)
