@@ -17,7 +17,19 @@ export class Monster extends TileObject {
         if (this.hp == null) {
             return console.error("Monster has no hp:", this)
         }
+
         this.hp -= partyDamage
+        gamesync.markDirty(this)
+
+        hub.sendToUser(user.id, {
+            event: GameEvent.MONSTER_DAMAGED,
+            payload: {
+                monsterId: this.id,
+                tile: this.tile,
+                damage: partyDamage,
+                critical: false,
+            } as HitResult,
+        })
 
         if (this.hp <= 0) {
             await this.onDeath({ user, activeRun })
@@ -28,19 +40,6 @@ export class Monster extends TileObject {
                     tile: this.tile,
                 },
             })
-
-            hub.sendToUser(user.id, {
-                event: GameEvent.MONSTER_DAMAGED,
-                payload: {
-                    monsterId: this.id,
-                    damage: partyDamage,
-                    critical: false,
-                } as HitResult,
-            })
-
-            const monsterDamage = Dice.roll({ max: this.damage || 0 })
-
-            activeRun.takeDamage(monsterDamage)
         }
     }
 
@@ -54,5 +53,24 @@ export class Monster extends TileObject {
                 tile: this.tile,
             },
         })
+    }
+
+    rollDamage(): number {
+        return Dice.roll({ max: this.damage || 0 })
+    }
+
+    attackParty(run: Run): HitResult {
+        const monsterDamage = this.rollDamage()
+        run.takeDamage(monsterDamage, this)
+        return {
+            monsterId: this.id,
+            tile: this.tile,
+            damage: monsterDamage,
+            critical: false,
+        }
+    }
+
+    async playTurn(run: Run): Promise<HitResult> {
+        return this.attackParty(run)
     }
 }

@@ -34,12 +34,6 @@ export class GameHub {
     }
 
     addUser(clientId: ClientId, user: User): void {
-        // First check if any other client is logged in as this user, and if so, move the user to the new client and disconnect the old one
-        const existingClientId = this.getClientIdByUserId(user.id)
-        if (existingClientId && existingClientId !== clientId) {
-            this.logoutClient(existingClientId)
-        }
-
         this.users.set(clientId, user)
     }
 

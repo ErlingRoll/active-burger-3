@@ -1,7 +1,11 @@
+import { Character } from "@/game/objects"
+
 export interface User {
     id: string
     name: string
     admin: boolean
+    essence: number
+    characters: Character[]
 }
 
 export interface UserSchema {

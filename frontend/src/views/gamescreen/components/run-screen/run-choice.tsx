@@ -3,8 +3,7 @@ import { useGamestate } from "@/contexts/gamestate-context"
 import { LootRunOption, RunChoice } from "@/game/objects"
 import { LootType } from "@/models/constants"
 import { usePlayer } from "@/contexts/player-context"
-
-const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
+import { textures } from "@/main"
 
 const RunChoiceModal = () => {
     const { runChoices, setRunChoices } = useGamestate()
@@ -13,8 +12,6 @@ const RunChoiceModal = () => {
     const [currentChoice, setCurrentChoice] = useState<RunChoice | null>(null)
 
     useEffect(() => {
-        // NOT TRIGGERING
-        console.log("Updated run choices:", runChoices)
         if (runChoices.length > 0) {
             setCurrentChoice(runChoices[0])
         } else {

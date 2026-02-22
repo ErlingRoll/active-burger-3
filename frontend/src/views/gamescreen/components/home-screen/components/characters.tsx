@@ -1,12 +1,10 @@
 import { FaDroplet, FaHeart } from "react-icons/fa6"
 import { Character as CharacterType } from "../../../../../game/objects"
-import { PiSwordBold } from "react-icons/pi"
-import { useContext, useState } from "react"
+import { useContext } from "react"
 import { MdStars } from "react-icons/md"
 import { CharactersContext } from "../../../../../contexts/characters-context"
 import { GiKnifeThrust } from "react-icons/gi"
-
-const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
+import { textures } from "@/main"
 
 const Characters = () => {
     const { characters } = useContext(CharactersContext)

@@ -1,10 +1,11 @@
 import { RunDao } from "../database/run-dao.js"
 import { BaseSchema, RunSchema } from "../database/types/schemas.js"
 import { FloorGenerator } from "../generators/floor/floor-generator.js"
-import { GameEvent } from "../hub/types.js"
+import { GameEvent, HitResult } from "../hub/types.js"
 import { gamesync, hub } from "../index.js"
 import { ClassProps } from "../utils/type-utils.js"
 import { Floor } from "./floor.js"
+import { Monster } from "./monster.js"
 import { TileObject } from "./tile-object.js"
 import { Tile } from "./tile.js"
 import { User } from "./user.js"
@@ -86,19 +87,44 @@ export class Run implements BaseSchema, RunSchema {
         return { ...structuredClone(this), floors: undefined }
     }
 
-    async takeDamage(damage: number): Promise<void> {
+    async takeDamage(damage: number, source: TileObject): Promise<void> {
+        this.party_hp -= damage
+        gamesync.markDirty(this)
+
         if (this.party_hp <= 0) {
             await this.onDeath()
         } else {
-            await this.sync()
             hub.sendToUser(this.user_id, {
                 event: GameEvent.RUN_STATS_UPDATED,
                 payload: {
                     run_stats: this.getStats(),
                 },
             })
+            hub.sendToUser(this.user_id, {
+                event: GameEvent.LOG,
+                payload: {},
+                log: [`Your party takes <span class="text-red-500">${damage}</span> damage from <b>${source.name}</b>`],
+            })
         }
     }
 
-    async onDeath(): Promise<void> {}
+    async onDeath(): Promise<void> {
+        // TODO: implement death flow (e.g. drop loot, show death screen, etc.)
+    }
+
+    // All events after the player's turn has ended (e.g. enemy attacks, enemy status effects, regen, environmental effects, etc.)
+    async playTurn(): Promise<void> {
+        const monsters = this.getFloor(Object.keys(this.floors).length - 1)?.getActiveMonsters() || []
+        this.monsterTurn(monsters)
+    }
+
+    private async monsterTurn(monsters: Monster[]): Promise<void> {
+        const monsterHits: HitResult[] = await Promise.all(monsters.map((monster) => monster.playTurn(this)))
+        hub.sendToUser(this.user_id, {
+            event: GameEvent.PARTY_DAMAGED,
+            payload: {
+                hit_results: monsterHits,
+            },
+        })
+    }
 }

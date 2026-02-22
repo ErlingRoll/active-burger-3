@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react"
 import { RiCopperCoinFill } from "react-icons/ri"
 import { Item } from "../../../../../game/objects"
-
-const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
+import { textures } from "@/main"
 
 type ItemInfoProps = {
     itemId: string

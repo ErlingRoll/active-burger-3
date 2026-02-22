@@ -3,6 +3,7 @@ import { BaseSchema, TileSchema } from "../database/types/schemas.js"
 import { TileType } from "../database/types/tiles.js"
 import { gamesync } from "../index.js"
 import { ClassProps } from "../utils/type-utils.js"
+import { TileObjectType } from "./constants.js"
 import { Floor } from "./floor.js"
 import { Run } from "./run.js"
 import { TileObject } from "./tile-object.js"
@@ -56,7 +57,6 @@ export class Tile implements BaseSchema, TileSchema {
     async activate({ user, activeRun }: { user: User; activeRun: Run }): Promise<void> {
         const tileObject = this.tile_object
         if (!tileObject) {
-            // console.warn(`Tile at (${this.x}, ${this.y}) has no tile object to activate.`)
             return
         }
         tileObject.activate({ user, activeRun })

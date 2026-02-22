@@ -1,6 +1,5 @@
 import { CharacterSchema, UserSchema } from "../models/account"
 import { LootType, Rarity, RunOptionType } from "../models/constants"
-import { RenderObject } from "../models/object"
 import { BaseSchema, FloorSchema, ItemSchema, RunSchema, TileObjectSchema, TileSchema } from "../models/schemas"
 
 export interface User extends BaseSchema, UserSchema {
@@ -43,26 +42,3 @@ export interface LootRunOption extends RunOption {
 }
 
 export interface Item extends BaseSchema, ItemSchema {}
-
-export const TERRAIN_OBJECTS: { [object_id: string]: Partial<RenderObject> } = {
-    gold_ore: {
-        name: "Gold Ore",
-        object_id: "gold_ore",
-        texture: "terrain/ore/gold",
-    },
-    teleporter: {
-        name: "Teleporter",
-        object_id: "teleporter",
-        texture: "misc/teleporter",
-    },
-    shopkeeper: {
-        name: "Shopkeeper",
-        object_id: "shopkeeper",
-        texture: "npcs/shopkeeper",
-    },
-    crafting_bench: {
-        name: "Crafting Bench",
-        object_id: "crafting_bench",
-        texture: "misc/crafting_bench",
-    },
-}

@@ -1,3 +1,4 @@
+import { Tile } from "../models/tile.js"
 import { User } from "../models/user.js"
 
 export type ClientId = string // Websocket client identifier
@@ -43,10 +44,12 @@ export enum GameEvent {
     CHARACTER_UPDATED = "character_updated",
     USER_UPDATED = "user_updated",
     MONSTER_DAMAGED = "monster_damaged",
+    PARTY_DAMAGED = "party_damaged",
 }
 
 export type HitResult = {
     monsterId: string
+    tile: Tile
     damage: number
     critical: boolean
 }

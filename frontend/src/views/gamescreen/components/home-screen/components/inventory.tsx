@@ -3,8 +3,7 @@ import { useGamestate } from "@/contexts/gamestate-context"
 import { Item } from "@/game/objects"
 import { usePlayer } from "@/contexts/player-context"
 import ItemTooltip from "../../game-ui/components/item-tooltip"
-
-const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
+import { textures } from "@/main"
 
 const Inventory = () => {
     const { items } = useGamestate()

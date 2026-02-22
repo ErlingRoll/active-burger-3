@@ -19,6 +19,7 @@ export enum GameEvent {
     CHARACTER_UPDATED = "character_updated",
     USER_UPDATED = "user_updated",
     MONSTER_DAMAGED = "monster_damaged",
+    PARTY_DAMAGED = "party_damaged",
 
     // Logging events
     LOG = "log",

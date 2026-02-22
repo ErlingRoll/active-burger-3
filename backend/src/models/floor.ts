@@ -1,5 +1,7 @@
 import { BaseSchema, FloorSchema } from "../database/types/schemas.js"
 import { ClassProps } from "../utils/type-utils.js"
+import { TileObjectType } from "./constants.js"
+import { Monster } from "./monster.js"
 import { Tile } from "./tile.js"
 
 export class Floor implements BaseSchema, FloorSchema {
@@ -22,5 +24,14 @@ export class Floor implements BaseSchema, FloorSchema {
 
     getTile(x: number, y: number): Tile | null {
         return this.tiles[`${x}_${y}`] || null
+    }
+
+    getActiveMonsters(): Monster[] {
+        return Object.values(this.tiles)
+            .filter(
+                (tile) =>
+                    !tile.hidden && tile.tile_object && tile.tile_object.tile_object_type === TileObjectType.MONSTER
+            )
+            .map((tile) => tile.tile_object as Monster)
     }
 }

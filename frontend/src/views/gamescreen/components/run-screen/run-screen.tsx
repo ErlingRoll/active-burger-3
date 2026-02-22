@@ -8,13 +8,13 @@ import { TileObjectType } from "@/models/constants"
 import dungeonBackground from "@/assets/textures/background/dungeon.webp"
 import { FaHeart } from "react-icons/fa"
 import RunChoiceModal from "./run-choice"
-import { drawLastDamageHit } from "./functions/draw-last-damage-hit"
+import { drawLastDamageHit, playMonsterAttackAnimation } from "./functions/draw-last-damage-hit"
 import { usePlayer } from "@/contexts/player-context"
-
-const textures = import.meta.glob("/src/assets/textures/**/*", { as: "url", eager: true })
+import DOMPurify from "dompurify"
+import { textures } from "@/main"
 
 const RunScreen = () => {
-    const { run, setRun, runStats, floors, setFloors, damageHits } = useGamestate()
+    const { run, setRun, runStats, floors, setFloors, damageHits, partyDamageHits, log } = useGamestate()
     const { gameActions } = usePlayer()
 
     const [tiles, setTiles] = useState<{ [pos: string]: Tile }>({})
@@ -24,13 +24,17 @@ const RunScreen = () => {
         const tiles = currentFloor?.tiles || {}
         setTiles(tiles)
         setFloors(run?.floors || {})
-        // console.log("Run:", run)
-        // console.log("Tiles:", tiles)
+        // console.debug("Run:", run)
+        // console.debug("Tiles:", tiles)
     }, [run])
 
     useEffect(() => {
         drawLastDamageHit(damageHits)
     }, [damageHits])
+
+    useEffect(() => {
+        playMonsterAttackAnimation(partyDamageHits)
+    }, [partyDamageHits])
 
     function endRun() {
         gameActions.endRun()
@@ -176,14 +180,26 @@ const RunScreen = () => {
                         })}
                     </div>
                 </div>
-                <div className="absolute min-w-48 left-full ml-4 text-light text-1xl font-bold bg-[rgba(0,0,0,0.7)] p-4 shadow rounded">
-                    <h2 className="text-2xl mb-1 whitespace-nowrap">Floor: {Object.keys(floors).length}</h2>
-                    <div className="flex flex-row items-center gap-1">
-                        <RiCopperCoinFill color="gold" /> {runStats?.gold}
+                <div className="absolute left-full h-full flex flex-row gap-4 ml-4 text-light text-1xl font-bold">
+                    <div className="min-w-48 bg-[rgba(0,0,0,0.7)] p-4 shadow rounded">
+                        <h2 className="text-2xl mb-1 whitespace-nowrap">Floor: {Object.keys(floors).length}</h2>
+                        <div className="flex flex-row items-center gap-1">
+                            <RiCopperCoinFill color="gold" /> {runStats?.gold}
+                        </div>
+                        <div className="flex flex-row items-center gap-1">
+                            <FaFireFlameCurved color="#00F0DF" />
+                            {runStats?.essence}
+                        </div>
                     </div>
-                    <div className="flex flex-row items-center gap-1">
-                        <FaFireFlameCurved color="#00F0DF" />
-                        {runStats?.essence}
+                    <div className="bg-[rgba(0,0,0,0.7)] p-4 shadow rounded min-w-64">
+                        <h2 className="text-2xl mb-1 whitespace-nowrap">Gamelog</h2>
+                        <div className="flex-1 flex flex-col-reverse gap-1 w-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+                            {log.map((msg, index) => (
+                                <div key={index} className="bg-light/10 rounded-xs py-[1px] px-[0.3rem]">
+                                    <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(msg) }} />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
                 <div className="absolute top-full mt-4 w-full flex flex-col items-center gap-2">

@@ -42,7 +42,7 @@ class GameActions {
 
     send(action: any): boolean {
         if (!this.ready(action)) return false
-        console.log("Sending action:", action)
+        console.debug("Sending action:", action)
         this.gameCon.send(JSON.stringify(action))
         return true
     }

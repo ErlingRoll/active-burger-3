@@ -1,5 +1,6 @@
 import { TileType } from "../../database/types/tiles.js"
 import { gamestate, hub } from "../../index.js"
+import { TileObjectType } from "../../models/constants.js"
 import { Tile } from "../../models/tile.js"
 import { User } from "../../models/user.js"
 import { GameEvent } from "../types.js"
@@ -34,25 +35,28 @@ export class TileActions {
 
         if (tile.hidden) {
             await tile.reveal()
-            hub.sendToClient(clientId, {
+            await hub.sendToClient(clientId, {
                 event: GameEvent.TILE_UPDATED,
                 payload: {
                     tile: tile,
                 },
             })
-            return
-        }
-
-        switch (tile.tile_type) {
-            case TileType.EMPTY:
-                break
-            case TileType.LOADING:
-                break
-            case TileType.OBJECT:
-                tile.activate({ user, activeRun })
-                break
-            default:
-                throw new Error(`Unhandled tile type: ${tile.tile_type}`)
+            activeRun.playTurn()
+        } else {
+            switch (tile.tile_type) {
+                case TileType.EMPTY:
+                    return
+                case TileType.LOADING:
+                    return
+                case TileType.OBJECT:
+                    await tile.activate({ user, activeRun })
+                    if (tile.tile_object && tile.tile_object.tile_object_type === TileObjectType.MONSTER) {
+                        await activeRun.playTurn()
+                    }
+                    break
+                default:
+                    throw new Error(`Unhandled tile type: ${tile.tile_type}`)
+            }
         }
     }
 }

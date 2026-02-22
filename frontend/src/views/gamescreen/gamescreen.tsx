@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useGamestate } from "@/contexts/gamestate-context"
 import GameUI from "./components/game-ui/game-ui"
 import { usePlayer } from "@/contexts/player-context"
@@ -14,10 +14,6 @@ const Gamescreen = () => {
     const { run } = useGamestate()
 
     const activeRun = () => run && run.active
-
-    useEffect(() => {
-        // console.log(run)
-    }, [run])
 
     return (
         <div className="absolute left-0 top-0 w-screen h-screen flex justify-center items-center overflow-hidden select-none">
