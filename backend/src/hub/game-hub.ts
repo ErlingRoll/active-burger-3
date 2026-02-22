@@ -11,7 +11,7 @@ import { ItemActions } from "./actions/item-actions.js"
 export class GameHub {
     private readonly clientsById = new Map<ClientId, ClientConnection>()
     private readonly idBySocket = new Map<WebSocket, ClientId>()
-    private readonly users = new Map<ClientId, User>()
+    private readonly userClientMap = new Map<ClientId, User>()
 
     async addClient(ws: WebSocket): Promise<void> {
         const clientId = randomUUID()
@@ -34,24 +34,22 @@ export class GameHub {
     }
 
     addUser(clientId: ClientId, user: User): void {
-        this.users.set(clientId, user)
-    }
+        // const existingUser = this.userClientMap.get(clientId)
+        // if (existingUser) {
+        //     console.log(`Client ${clientId} already has user ${existingUser.id}, replacing with ${user.id}`)
+        // } else {
+        //     console.log(`Associating client ${clientId} with user ${user.id}`)
+        // }
 
-    getUserByUserId(userId: string): User | null {
-        for (const user of this.users.values()) {
-            if (user.id === userId) {
-                return user
-            }
-        }
-        return null
+        this.userClientMap.set(clientId, user)
     }
 
     getUserByClientId(clientId: ClientId): User {
-        return this.users.get(clientId)!
+        return this.userClientMap.get(clientId)!
     }
 
     getClientIdByUserId(userId: string): ClientId | null {
-        for (const [clientId, user] of this.users.entries()) {
+        for (const [clientId, user] of this.userClientMap.entries()) {
             if (user.id === userId) {
                 return clientId
             }
@@ -60,7 +58,7 @@ export class GameHub {
     }
 
     logoutClient(clientId: ClientId): void {
-        this.users.delete(clientId)
+        this.userClientMap.delete(clientId)
         const conn = this.clientsById.get(clientId)
         if (!conn) return
         this.idBySocket.delete(conn.ws)
@@ -172,7 +170,7 @@ export class GameHub {
                 break
 
             case UserAction.START_RUN:
-                RunActions.startRun({ clientId, payload })
+                RunActions.startRun({ clientId, user, payload })
                 break
 
             case UserAction.END_RUN:

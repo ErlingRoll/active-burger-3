@@ -39,11 +39,12 @@ export class Gamesync {
 
         await Promise.all([...userUpdates, ...runUpdates, ...tileUpdates, ...tileObjectUpdates])
 
-        if (userUpdates.length + runUpdates.length + tileUpdates.length + tileObjectUpdates.length > 0) {
-            console.log(
-                `Synced: ${runUpdates.length} runs, ${tileUpdates.length} tiles, ${tileObjectUpdates.length} tile objects`
-            )
-        }
+        // if (userUpdates.length + runUpdates.length + tileUpdates.length + tileObjectUpdates.length > 0) {
+        //     console.log(
+        //         `Synced: ${runUpdates.length} runs, ${tileUpdates.length} tiles, ${tileObjectUpdates.length} tile objects`
+        //     )
+        // }
+
         this.busySyncing = false
     }
 

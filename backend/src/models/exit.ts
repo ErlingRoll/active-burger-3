@@ -10,7 +10,7 @@ export class Exit extends TileObject {
     }
 
     async activate({ user, activeRun }: { user: User; activeRun: Run }): Promise<void> {
-        await activeRun.exitFloor()
+        await activeRun.exitFloor(user)
         hub.sendToUser(user.id, {
             event: GameEvent.RUN_UPDATED,
             payload: {

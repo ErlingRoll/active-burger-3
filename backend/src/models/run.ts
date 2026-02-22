@@ -57,8 +57,7 @@ export class Run implements BaseSchema, RunSchema {
         gamesync.markDirty(this)
     }
 
-    async exitFloor(): Promise<void> {
-        const user = hub.getUserByUserId(this.user_id)
+    async exitFloor(user: User): Promise<void> {
         if (!user) {
             throw new Error(`Cannot exit floor: user with ID ${this.user_id} not found in hub`)
         }

@@ -11,9 +11,7 @@ export interface selectedRunChoicePayload {
 }
 
 export class RunActions {
-    static async startRun({ clientId, payload }: { clientId: string; payload: any }): Promise<void> {
-        const user = hub.getUserByClientId(clientId)
-
+    static async startRun({ clientId, user, payload }: { clientId: string; user: User; payload: any }): Promise<void> {
         await RunGenerator.startRun(user)
 
         let run = null
